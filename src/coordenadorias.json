@@ -1,0 +1,289 @@
+{
+  "data": [
+    {
+      "text": "DIMET",
+      "coordenadorias": [
+        {
+          "text": "CTTS",
+          "value": "COORDENADORIA DE TRABALHO TÉCNICO SOCIAL",
+          "overseer": "BERNADETE",
+          "milestones": {
+            "1": {
+              "title": "Implantação da biblioteca da SEDOP",
+              "lastUpdate": "Foram realizados 52 empréstimos",
+              "lastUpdateDate": "05/01/2018",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 63,
+                "realized": 339
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "07/11/2016",
+                  "end": "01/02/2017"
+                },
+                "realized": {
+                  "start": "07/11/2016",
+                  "end": "08/02/2017"
+                }
+              },
+              "cost": {
+                "predicted": 0,
+                "realized": 0
+              }
+            },
+            "1.1": {
+              "title": "Disponibilizar do espaço/organização",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 1,
+                "realized": 1
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "07/11/2016",
+                  "end": "21/11/2016"
+                },
+                "realized": {
+                  "start": "07/11/2016",
+                  "end": "14/11/2016"
+                }
+              }
+            },
+            "1.2": {
+              "title": "Adquirir 30 livros",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 30,
+                "realized": 168
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "07/11/2016",
+                  "end": "01/02/2016"
+                },
+                "realized": {
+                  "start": "07/11/2016",
+                  "end": "16/01/2017"
+                }
+              }
+            },
+            "1.3": {
+              "title": "Realizar campanha de doação - Aquisição do acervo",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 1,
+                "realized": 1
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "21/11/2016",
+                  "end": "30/12/2016"
+                },
+                "realized": {
+                  "start": "21/11/2016",
+                  "end": "30/12/2016"
+                }
+              }
+            },
+            "1.4": {
+              "title": "Catalogar acervo - Biblivre",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 30,
+                "realized": 168
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "02/01/2017",
+                  "end": "02/01/2017"
+                },
+                "realized": {
+                  "start": "02/01/2017",
+                  "end": "16/01/2017"
+                }
+              }
+            },
+            "1.5": {
+              "title": "Inaugurar biblioteca",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 1,
+                "realized": 1
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "02/01/2017",
+                  "end": "02/01/2017"
+                },
+                "realized": {
+                  "start": "02/01/2017",
+                  "end": "17/01/2017"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "text": "DIPLA",
+      "coordenadorias": [
+        {
+          "text": "CTTS2",
+          "value": "COORDENADORIA DE TRABALHO TÉCNICO SOCIAL 2",
+          "overseer": "BERNADETE",
+          "milestones": {
+            "1": {
+              "title": "Implantação da biblioteca da SEDOP",
+              "lastUpdate": "Foram realizados 52 empréstimos",
+              "lastUpdateDate": "05/01/2018",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 63,
+                "realized": 339
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "07/11/2016",
+                  "end": "01/02/2017"
+                },
+                "realized": {
+                  "start": "07/11/2016",
+                  "end": "08/02/2017"
+                }
+              },
+              "cost": {
+                "predicted": 0,
+                "realized": 0
+              }
+            }
+          }
+        },
+        {
+          "text": "CTTS3",
+          "value": "ctts TRES",
+          "overseer": "BERNADETE",
+          "milestones": {
+            "1": {
+              "title": "Implantação da biblioteca da SEDOP",
+              "lastUpdate": "Foram realizados 52 empréstimos",
+              "lastUpdateDate": "05/01/2018",
+              "assigned": "Denilze",
+              "scopeQuality": {
+                "predicted": 63,
+                "realized": 339
+              },
+              "deadline": {
+                "predicted": {
+                  "start": "07/11/2016",
+                  "end": "01/02/2017"
+                },
+                "realized": {
+                  "start": "07/11/2016",
+                  "end": "08/02/2017"
+                }
+              },
+              "cost": {
+                "predicted": 0,
+                "realized": 0
+              },
+              "children": {
+                "1": {
+                  "title": "Disponibilizar do espaço/organização",
+                  "assigned": "Denilze",
+                  "scopeQuality": {
+                    "predicted": 1,
+                    "realized": 1
+                  },
+                  "deadline": {
+                    "predicted": {
+                      "start": "07/11/2016",
+                      "end": "21/11/2016"
+                    },
+                    "realized": {
+                      "start": "07/11/2016",
+                      "end": "14/11/2016"
+                    }
+                  }
+                },
+                "2": {
+                  "title": "Adquirir 30 livros",
+                  "assigned": "Denilze",
+                  "scopeQuality": {
+                    "predicted": 30,
+                    "realized": 168
+                  },
+                  "deadline": {
+                    "predicted": {
+                      "start": "07/11/2016",
+                      "end": "01/02/2016"
+                    },
+                    "realized": {
+                      "start": "07/11/2016",
+                      "end": "16/01/2017"
+                    }
+                  }
+                },
+                "3": {
+                  "title": "Realizar campanha de doação - Aquisição do acervo",
+                  "assigned": "Denilze",
+                  "scopeQuality": {
+                    "predicted": 1,
+                    "realized": 1
+                  },
+                  "deadline": {
+                    "predicted": {
+                      "start": "21/11/2016",
+                      "end": "30/12/2016"
+                    },
+                    "realized": {
+                      "start": "21/11/2016",
+                      "end": "30/12/2016"
+                    }
+                  }
+                },
+                "4": {
+                  "title": "Catalogar acervo - Biblivre",
+                  "assigned": "Denilze",
+                  "scopeQuality": {
+                    "predicted": 30,
+                    "realized": 168
+                  },
+                  "deadline": {
+                    "predicted": {
+                      "start": "02/01/2017",
+                      "end": "02/01/2017"
+                    },
+                    "realized": {
+                      "start": "02/01/2017",
+                      "end": "16/01/2017"
+                    }
+                  }
+                },
+                "5": {
+                  "title": "Inaugurar biblioteca",
+                  "assigned": "Denilze",
+                  "scopeQuality": {
+                    "predicted": 1,
+                    "realized": 1
+                  },
+                  "deadline": {
+                    "predicted": {
+                      "start": "02/01/2017",
+                      "end": "02/01/2017"
+                    },
+                    "realized": {
+                      "start": "02/01/2017",
+                      "end": "17/01/2017"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
