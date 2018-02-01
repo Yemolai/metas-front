@@ -1,20 +1,17 @@
 <template lang='pug'>
   b-container#painel-de-resultados
     b-row
-      b-col(cols="10")
+      b-col(cols='10')
         b-row
-          b-col(cols="12" style="margin-bottom: 1rem")
+          b-col(cols='12' style='margin-bottom: 1rem')
             year-progress
-          b-col(cols="4")
-            b-form-select.mb-3(v-model="form.diretoria" :options='diretorias')
+          b-col(cols='4')
+            b-form-select.mb-3(v-model='form.diretoria' :options='diretorias')
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
-          b-col(cols="8" style="padding-top: 0.5rem")
+          b-col(cols='8' style='padding-top: 0.5rem')
             p.text-left {{ form.diretoria || '' }}
-      b-col(cols="2")
-        radial-progress(
-          :values='progress'
-        )
+      b-col(cols='2')
     b-container.table
       b-table(
         small
