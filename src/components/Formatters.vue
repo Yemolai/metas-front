@@ -3,7 +3,7 @@ import Helpers from '@/components/Helpers'
 
 export default {
   // FORMATADORES  DE CAMPOS:
-  deadlineFormatter (v) { // formatador do prazo
+  deadline (v) { // formatador do prazo
     let literal = v.literalDates || false
     let p = v.predicted || {}
     let r = v.realized || {}
@@ -75,11 +75,11 @@ export default {
       return '<small>data<br>indefinida</small>'
     }
   },
-  lastUpdateFormatter (v, k, i) { // formatador de última atualização
+  lastUpdate (v, k, i) { // formatador de última atualização
     let lud = i.lastUpdateDate
     return (v && lud) ? `${v}<br><small>(${lud})</small>` : ''
   },
-  scopeQualityFormatter (v) { // formatador de progresso
+  scopeQuality (v) { // formatador de progresso
     let done = isNaN(Number(v.realized)) ? 0 : Number(v.realized)
     let target = isNaN(Number(v.predicted)) ? 0 : Number(v.predicted)
     let progress = done / target
@@ -99,7 +99,7 @@ export default {
     return `${done}<small>/${target}<br>
     (<span class="${level}">${(progress * 100).toFixed(2)}%</span>)</small>`
   },
-  costFormatter: v => { // formatador de custo
+  cost: v => { // formatador de custo
     if (!v || (Number(v.realized) === 0 && Number(v.predicted === 0))) {
       return ''
     }

@@ -1,16 +1,5 @@
 <script>
 export default {
-  relacionarDados (coords, dirs) {
-    console.log('relacionarDados', coords, dirs)
-    return dirs.data.map(d => ({
-      text: d.text,
-      value: d.value,
-      coordenadorias: coords.data
-        .filter(dc => (dc.text === d.text))
-        .map(d => d.coordenadorias)
-        .reduce((p, a) => a, {})
-    }))
-  },
   plural (numericObj, singular, plural) {
     return isNaN(numericObj) ? null : (
       (numericObj > 1 || numericObj === 0 || numericObj < -1) ? (plural || 's') : (singular || '')

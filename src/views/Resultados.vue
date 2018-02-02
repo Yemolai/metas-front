@@ -12,6 +12,7 @@
           b-col(cols='8' style='padding-top: 0.5rem')
             p.text-left {{ form.diretoria || '' }}
       b-col(cols='2')
+        RadialProgress(:chart-data='[[75, 100]]')
     b-container.table
       b-table(
         small
