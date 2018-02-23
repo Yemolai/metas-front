@@ -14,11 +14,18 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "apollo-cache-inmemory": "^1.1.9",
+    "apollo-client": "^2.2.5",
+    "apollo-link": "^1.2.1",
+    "apollo-link-http": "^1.5.1",
     "bootstrap": "^4.0.0-beta.2",
     "bootstrap-vue": "^1.4.1",
     "chart.js": "^2.7.1",
+    "graphql": "^0.13.1",
+    "graphql-tag": "^2.8.0",
     "jquery": "^3.3.1",
     "vue": "^2.5.2",
+    "vue-apollo": "^3.0.0-beta.4",
     "vue-chart-js": "^1.4.1",
     "vue-chartjs": "^3.1.0",
     "vue-radial-progress": "^0.2.10",

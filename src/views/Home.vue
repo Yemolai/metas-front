@@ -5,16 +5,23 @@
     <ul>
       <li><a href="#/painel">Painel</a></li>
     </ul>
+    <div class="container">
+      <diretorias-table/>
+    </div>
   </div>
 </template>
 
 <script>
+import DiretoriasTable from '@/components/DiretoriasTable'
 export default {
-  name: 'HelloWorld',
+  name: 'Home',
   data () {
     return {
       msg: 'Sistema em desenvolvimento'
     }
+  },
+  components: {
+    DiretoriasTable
   }
 }
 </script>
