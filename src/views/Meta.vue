@@ -30,7 +30,6 @@
 </template>
 <script>
 import gql from 'graphql-tag'
-// import router from '@/router'
 export default {
   name: 'Meta',
   data () {
@@ -40,14 +39,15 @@ export default {
     }
   },
   methods: {
-    date: number => (new Date(number)).toLocaleDateString('pt-BR'),
-    money: (value, currency='R$', position='pre') => {
-        let numero = value.toFixed(2).split('.')
-        numero[0] = numero[0].split(/(?=(?:...)*$)/).join('.')
-        if (position !== 'pre') {
-          return numero.join(',') + '' + currency
-        }
-        return currency + ' ' + numero.join(',')
+    date: number => (new Date(number))
+      .toLocaleDateString('pt-BR'),
+    money: (value, currency = 'R$', position = 'pre') => {
+      let numero = value.toFixed(2).split('.')
+      numero[0] = numero[0].split(/(?=(?:...)*$)/).join('.')
+      if (position !== 'pre') {
+        return numero.join(',') + '' + currency
+      }
+      return currency + ' ' + numero.join(',')
     }
   },
   apollo: {

@@ -1,23 +1,37 @@
-<template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Rotas</h2>
-    <ul>
-      <li><a href="#/painel">Painel</a></li>
-    </ul>
-    <div class="container">
-      <diretorias-table/>
-    </div>
-  </div>
+<template lang="pug">
+  .hello
+    h1 {{ msg }}
+    h2 Rotas
+    ul
+      li
+        a(href="#/painel") Painel
+    .container
+      b-row
+        b-col.text-right
+          b-btn.floating(
+            variant='primary'
+            v-if="can('setor_create')"
+            @click="goTo({name:'AddSetor'})"
+          ) Criar nova diretoria
+      diretorias-table
 </template>
 
 <script>
 import DiretoriasTable from '@/components/DiretoriasTable'
+import router from '@/router'
 export default {
   name: 'Home',
+  methods: {
+    can: function (permissao) {
+      return !!this.user.permissoes[permissao]
+    },
+    goTo: (...args) => (router.push(...args))
+  },
   data () {
     return {
-      msg: 'Sistema em desenvolvimento'
+      msg: 'Sistema em desenvolvimento',
+      loading: 0,
+      user: { permissoes: { setor_create: true } }
     }
   },
   components: {

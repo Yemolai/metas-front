@@ -1,6 +1,6 @@
 <template lang="pug">
   // Component structure goes here
-  #diretorias-table
+  #diretorias-table.text-left
     h4(
       v-if='loading'
     ) Carregando...
@@ -9,15 +9,13 @@
       stacked='sm'
       striped
       hover
-      small
       :items='setores'
       :fields='fields'
       v-on:row-clicked='rowClicked'
     )
 </template>
 <script>
-// GQL query pra recuperar todos os setores do servidor
-import { ALL_SETORES } from '@/constants/all-setores'
+import gql from 'graphql-tag'
 import router from '@/router'
 
 const uppercase = v => (typeof v === 'string') ? v.toUpperCase() : v
@@ -36,27 +34,63 @@ const capitalize = v => { // pra capitalizar as palavras de uma frase
   } // se não retorn v mesmo, paciência...
   return v
 }
+
 export default {
   // Component logic goes here
   name: 'DiretoriasTable',
   methods: {
-    rowClicked: (item) => router.push({ name: 'Diretoria', params: { setorId: item.id } })
+    rowClicked: item => router.push({
+      name: 'Setor',
+      params: { setor: item.sigla.toUpperCase() }
+    })
   },
   data () {
     return {
       loading: 0,
       setores: [], // definição dos dados da tabela
       fields: [ // definição das colunas da tabela
-        { key: 'id', label: '#' },
+        // { key: 'id', label: '#' },
         { key: 'sigla', formatter: uppercase },
         { key: 'nome', formatter: capitalize },
-        { key: 'responsavel', label: 'Responsável', formatter: v => (v.nome || '') }
+        {
+          key: 'responsavel',
+          label: 'Responsável',
+          formatter: v => (v ? v.nome : '--')
+        }
       ]
     }
   },
   apollo: {
     setores: {
-      query: ALL_SETORES
+      query: gql`
+        query AllSetores {
+          setores {
+            id
+            sigla
+            nome
+            endereco
+            telefone
+            ramal
+            responsavel {
+              id
+              nome
+            }
+            coordenadorias {
+              id
+              sigla
+              nome
+              metas {
+                id
+                titulo
+                submetas {
+                  id
+                  titulo
+                }
+              }
+            }
+          }
+        }
+      `
     }
   }
 }

@@ -1,8 +1,8 @@
+<script>
 import gql from 'graphql-tag'
-
-export const ALL_SETORES = gql`
-  query AllSetores {
-    setores {
+export default gql`
+  query getSetorDetails($setorId: ID!) {
+    setor(id: $setorId) {
       id
       sigla
       nome
@@ -17,15 +17,17 @@ export const ALL_SETORES = gql`
         id
         sigla
         nome
+        telefone
+        ramal
+        responsavel {
+          id
+          nome
+        }
         metas {
           id
-          titulo
-          submetas {
-            id
-            titulo
-          }
         }
       }
     }
   }
 `
+</script>
