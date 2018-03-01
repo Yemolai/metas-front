@@ -41,7 +41,7 @@ export default {
   methods: {
     rowClicked: item => router.push({
       name: 'Setor',
-      params: { setor: item.sigla.toUpperCase() }
+      params: { setorId: item.id }
     })
   },
   data () {
