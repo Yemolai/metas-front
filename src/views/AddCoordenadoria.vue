@@ -86,42 +86,9 @@
           b-btn.ml-2.mb-2(type='submit' variant='primary') Criar nova coordenadoria
 </template>
 <script>
-import gql from 'graphql-tag'
+import INSERT_COORDENADORIA from '@/constants/insert-coordenadoria'
+import GET_USUARIOS from '@/constants/get-usuarios'
 import router from '@/router'
-const INSERT_NEW_COORD_MUTATION = gql`
-  mutation INSERT_NEW_COORD(
-    $sigla: String!,
-    $nome: String!,
-    $endereco: String,
-    $telefone: String,
-    $ramal: String,
-    $setorId: Int!,
-    $responsavelId: Int,
-  ) {
-    addCoordenadoria(
-      sigla: $sigla,
-      nome: $nome,
-      endereco: $endereco,
-      telefone: $telefone,
-      ramal: $ramal,
-      setor: $setorId,
-      responsavel: $responsavelId
-    ) {
-      id
-    }
-  }
-`
-const GET_ALL_USUARIOS = gql`
-  query GET_ALL_USUARIOS {
-    usuarios {
-      id
-      nome
-      setor {
-        sigla
-      }
-    }
-  }
-`
 const emptyForm = {
   sigla: null,
   nome: null,
@@ -158,9 +125,9 @@ export default {
       e.preventDefault()
       let variables = this.form
       variables.setorId = this.setorId
-      let mutation = INSERT_NEW_COORD_MUTATION
+      let mutation = INSERT_COORDENADORIA
       return this.$apollo.mutate({ mutation, variables })
-        .then(response => router.push({
+        .then(response => router.replace({
           name: 'Coordenadoria',
           params: {
             setorId: variables.setorId,
@@ -169,6 +136,6 @@ export default {
         }))
     }
   },
-  apollo: { usuarios: { query: GET_ALL_USUARIOS } }
+  apollo: { usuarios: { query: GET_USUARIOS } }
 }
 </script>

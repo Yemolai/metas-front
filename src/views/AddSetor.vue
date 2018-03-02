@@ -1,8 +1,8 @@
 <template lang="pug">
-  #add-setor.container
-    h3.text-left N
+  #add-setor.container.text-left
+    h3 N
       small OVA DIRETORIA
-    h4(v-if='loading') Carregando...
+    h4(v-if='loading').text-left Carregando...
     b-form(@submit='saveNew' @reset='clearForm' v-else).text-left
       //- linha 1
       b-row
@@ -87,9 +87,10 @@
           b-btn.ml-2.mb-2(type='submit' variant='primary') Salvar nova diretoria
 </template>
 <script>
-import gql from 'graphql-tag'
+import INSERT_SETOR from '@/constants/insert-setor'
+import GET_USUARIOS from '@/constants/get-usuarios'
 import router from '@/router'
-const emptyForm = {
+const emptySetor = {
   sigla: null,
   nome: null,
   endereco: null,
@@ -100,13 +101,13 @@ const emptyForm = {
 export default {
   methods: {
     back: () => router.go(-1),
-    clearForm: function () { this.form = emptyForm },
+    clearForm: function () { this.form = emptySetor },
     saveNew: function (e) {
       e.preventDefault()
-      const mutation = this.ADD_SETOR_MUTATION
+      const mutation = INSERT_SETOR
       const variables = this.form
       this.$apollo.mutate({ mutation, variables })
-        .then(response => router.push({
+        .then(response => router.replace({
           name: 'Setor',
           params: { setorId: response.data.addSetor.id }
         }))
@@ -126,44 +127,12 @@ export default {
     return {
       loading: 0,
       usuarios: [],
-      form: emptyForm,
-      ADD_SETOR_MUTATION: gql`
-        mutation ADD_SETOR_MUTATION(
-          $sigla: String!,
-          $nome: String!,
-          $endereco: String,
-          $telefone: String,
-          $ramal: String,
-          $responsavel: Int
-        ) {
-          addSetor (
-            sigla: $sigla,
-            nome: $nome,
-            endereco: $endereco,
-            telefone: $telefone,
-            ramal: $ramal,
-            responsavel: $responsavel
-          ) {
-            id
-            sigla
-          }
-        }
-      `
+      form: emptySetor
     }
   },
   apollo: {
     usuarios: {
-      query: gql`
-        query {
-          usuarios {
-            id
-            nome
-            setor {
-              sigla
-            }
-          }
-        }
-      `
+      query: GET_USUARIOS
     }
   }
 }

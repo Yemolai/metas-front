@@ -49,7 +49,7 @@ export default new Router({
       component: AddCoordenadoria,
       props: true
     }, {
-      path: '/add/:setorId/:coordId',
+      path: '/:setor/:coordenadoria/add',
       name: 'AddMeta',
       component: AddMeta,
       props: true

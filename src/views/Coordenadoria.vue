@@ -39,7 +39,7 @@
 </template>
 <script>
 import router from '@/router'
-import GET_COORD from '@/constants/get-coord'
+import GET_COORDENADORIA from '@/constants/get-coordenadoria'
 export default {
   name: 'Coordenadoria',
   methods: {
@@ -60,8 +60,8 @@ export default {
       return router.push({
         name: 'AddMeta',
         params: {
-          setorId: this.coordenadoria.setor.sigla,
-          coordId: this.coordenadoria.sigla
+          setor: this.coordenadoria.setor.sigla,
+          coordenadoria: this.coordenadoria.sigla
         }
       })
     },
@@ -76,7 +76,7 @@ export default {
       coordenadoria: {},
       fields: [
         'titulo',
-        { key: 'responsavel', formatter: v => v.nome || '' },
+        { key: 'responsavel', formatter: v => v ? v.nome : '' },
         'escopo_previsto',
         'escopo_realizado'
       ],
@@ -85,7 +85,7 @@ export default {
   },
   apollo: {
     coordenadoria: {
-      query: GET_COORD,
+      query: GET_COORDENADORIA,
       variables () {
         return {
           coordId: this.$route.params.setorId
