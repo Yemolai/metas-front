@@ -6,14 +6,14 @@
           b-col(cols='12' style='margin-bottom: 1rem')
             year-progress
           b-col(cols='4')
-            b-form-select.mb-3(v-model='form.diretoria' :options='diretorias')
+            b-form-select.mb-3(v-model='form.diretoria' :options='listaDiretorias' value-field='nome' text-field='sigla')
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
           b-col(cols='8' style='padding-top: 0.5rem')
             p.text-left {{ form.diretoria || '' }}
       b-col(cols='2')
         RadialProgress(:chart-data='[[75, 100]]')
-    b-container.table
+    b-container.table.text-left
       b-table(
         small
         striped
@@ -25,8 +25,16 @@
 <script>
 import YearProgress from '@/components/YearProgress'
 import RadialProgress from '@/components/RadialProgress'
-import Diretorias from '@/diretorias.json'
-
+import Helpers from '@/components/Helpers'
+import GET_SETORES from '@/constants/get-setores'
+const tableFields = [
+  {key: 'titulo', label: 'Descrição'},
+  {key: 'resumo', label: 'Ação/Análise'},
+  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome},
+  {key: 'escopo_previsto', label: 'E(p)', formatter: Helpers.numero()},
+  {key: 'escopo_realizado', label: 'E(r)', formatter: Helpers.numero()},
+  {key: 'inicio_previsto', label: 'Ti(r)', formatter: Helpers.data()}
+]
 export default {
   name: 'painel-de-resultados',
   components: {
@@ -34,11 +42,22 @@ export default {
     RadialProgress
   },
   computed: {
+    listaDiretorias: function () {
+      return this.setores.map(_diretoria => {
+        let { sigla, nome } = _diretoria
+        return { sigla, nome }
+      })
+    },
     tableItems: function () {
-      if (!this.form.diretoria) return []
-      let dir = Diretorias.data
-        .filter(diretoria => diretoria.value === this.form.diretoria)
-      return dir[0].data
+      if (this.form.diretoria === null) {
+        return []
+      }
+      let diretoriaSelecionada = this.form.diretoria
+      let diretoria = this.setores
+        .filter(diretoria => diretoria.nome === diretoriaSelecionada)
+        .reduce((p, a) => a, {})
+      let coordenadorias = diretoria.coordenadorias
+      return coordenadorias.map(c => c.metas).reduce((p, a) => a, [])
     }
   },
   methods: {
@@ -68,9 +87,14 @@ export default {
       form: {
         diretoria: null
       },
+      setores: [],
       progress: [[160, 280]],
-      diretorias: Diretorias.data.map(this.parseData),
-      tableFields: Diretorias.fields.map(f => ({ isRowHeader: true, ...f }))
+      tableFields
+    }
+  },
+  apollo: {
+    setores: {
+      query: GET_SETORES
     }
   }
 }

@@ -4,10 +4,10 @@
       b-tab(title='Visão geral' disabled)
         br
         | Aqui entra o resumo gráfico
-      b-tab(title='Painel de resultados')
+      b-tab(title='Painel de resultados' active)
         br
         Resultados
-      b-tab(title='Painel de desempenho' active)
+      b-tab(title='Painel de desempenho')
         br
         Desempenho
       b-tab(title='Configurações' disabled)
