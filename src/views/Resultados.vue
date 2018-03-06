@@ -1,39 +1,49 @@
 <template lang='pug'>
   b-container#painel-de-resultados
     b-row
-      b-col(cols='10')
+      b-col(md='10' sm='12')
         b-row
-          b-col(cols='12' style='margin-bottom: 1rem')
+          //- Barra de progresso de ano
+          b-col(cols='12').year-progress-container
             year-progress
           b-col(cols='4')
-            b-form-select.mb-3(v-model='form.diretoria' :options='listaDiretorias' value-field='nome' text-field='sigla')
+            //- Seletor de diretoria
+            b-form-select.mb-3(
+              v-model='form.diretoria'
+              :options='listaDiretorias'
+              value-field='id'
+              text-field='sigla'
+            )
+              //- Aqui entra a primeira opção nula
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
-          b-col(cols='8' style='padding-top: 0.5rem')
-            p.text-left {{ form.diretoria || '' }}
-      b-col(cols='2')
-        RadialProgress(:chart-data='[[75, 100]]')
+          b-col(cols='8').diretoria-nome
+            p.text-left(v-if='form.diretoria !== null')
+              span {{ setores[form.diretoria].nome || '' }}
+      b-col(v-if='w > 992' md='2' sm='12')
+        //- Esse componente ainda não é dinâmico
+        RadialProgress(:chart-data='[[75, 100]]').limit-height.negative-borders
     b-container.table.text-left
       b-table(
-        small
-        striped
-        hover
         :items='tableItems'
         :fields='tableFields'
+        stacked='md'
+        striped
       )
 </template>
 <script>
 import YearProgress from '@/components/YearProgress'
 import RadialProgress from '@/components/RadialProgress'
-import Helpers from '@/components/Helpers'
+import Formatters from '@/components/Formatters'
 import GET_SETORES from '@/constants/get-setores'
+import GET_METAS_SETOR from '@/constants/get-metas-setor'
+import gql from 'graphql-tag'
 const tableFields = [
   {key: 'titulo', label: 'Descrição'},
   {key: 'resumo', label: 'Ação/Análise'},
   {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome},
-  {key: 'escopo_previsto', label: 'E(p)', formatter: Helpers.numero()},
-  {key: 'escopo_realizado', label: 'E(r)', formatter: Helpers.numero()},
-  {key: 'inicio_previsto', label: 'Ti(r)', formatter: Helpers.data()}
+  {key: 'escopo', formatter: Formatters.escopo},
+  {key: 'prazo', formatter: Formatters.deadline}
 ]
 export default {
   name: 'painel-de-resultados',
@@ -42,44 +52,19 @@ export default {
     RadialProgress
   },
   computed: {
-    listaDiretorias: function () {
+    w: () => window.innerWidth,
+    listaDiretorias: function () { // lista para o dropdown
       return this.setores.map(_diretoria => {
         let { sigla, nome } = _diretoria
-        return { sigla, nome }
+        return { sigla, nome } // sigla é o text, nome é o value
       })
     },
-    tableItems: function () {
-      if (this.form.diretoria === null) {
-        return []
-      }
-      let diretoriaSelecionada = this.form.diretoria
+    tableItems: function () { // lista de itens pra preencher a tabela
+      if (this.form.diretoria === null) { return [] }
       let diretoria = this.setores
-        .filter(diretoria => diretoria.nome === diretoriaSelecionada)
+        .filter(diretoria => diretoria.nome === this.form.diretoria)
         .reduce((p, a) => a, {})
-      let coordenadorias = diretoria.coordenadorias
-      return coordenadorias.map(c => c.metas).reduce((p, a) => a, [])
-    }
-  },
-  methods: {
-    parseData: dir => {
-      if (!dir.processed) {
-        let arrows = ['⇩', '⇨', '⇧', '⇪']
-        let arrowIndicator = v => arrows[v + 1]
-        let percentage = (v) => ((v * 100) + '%')
-        let deadline = v => (v < -1) ? 'Vencido' : (v < 0) ? 'Finalizado' : v + ' dia' + (v > 1 ? 's' : '')
-        dir.data = dir.data.map((item) => {
-          if ('scopeDelta' in item) item.scopeDelta = arrowIndicator(item.scopeDelta)
-          if ('scopeQuality' in item) item.scopeQuality = percentage(item.scopeQuality)
-          if ('eta' in item) item.eta = deadline(item.eta)
-          if ('timeDelta' in item) item.timeDelta = arrowIndicator(item.timeDelta)
-          if ('timeDiff' in item) item.timeDiff = percentage(item.timeDiff)
-          if ('costDelta' in item) item.costDelta = arrowIndicator(item.costDelta)
-          if ('costDiff' in item) item.costDiff = percentage(item.costDiff)
-          return item
-        })
-        dir.processed = true
-      }
-      return dir
+      return diretoria.coordenadorias.map(c => c.metas).reduce((p, a) => a, [])
     }
   },
   data () {
@@ -88,6 +73,7 @@ export default {
         diretoria: null
       },
       setores: [],
+      metas: [],
       progress: [[160, 280]],
       tableFields
     }
@@ -95,10 +81,45 @@ export default {
   apollo: {
     setores: {
       query: GET_SETORES
+    },
+    metas: {
+      query: function () {
+        console.log('this.form.diretoria', this.form.diretoria)
+        console.log('this.setores', this.setores)
+        if (this.form.diretoria === null) {
+          return gql`
+              {
+                setor(id: 0) {
+                  id
+                }
+              }
+            `
+        }
+        return GET_METAS_SETOR
+      },
+      variables: function () {
+        if (this.form.diretoria === null) {
+          return { setorId: 0 }
+        }
+        return { setorId: this.form.diretoria }
+      }
     }
   }
 }
 </script>
 <style scoped>
   /* Here lies the component Style */
+  .year-progress-container {
+    margin-bottom: 1rem;
+  }
+  .diretoria-nome {
+    padding-top: 0.5rem;
+  }
+  .negative-borders {
+    margin-top: -3rem;
+    margin-left: -2rem;
+  }
+  .limit-height>canvas {
+    max-height: 5rem;
+  }
 </style>

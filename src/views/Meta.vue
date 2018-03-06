@@ -32,14 +32,13 @@
         striped
         small
         :sort-desc='true'
-        :items='atualizacoes'
+        :items='meta.atualizacoes'
         :fields='fields'
         sort-by='id'
       )
 </template>
 <script>
 import GET_META from '@/constants/get-meta'
-import GET_ATUALIZACOES from '@/constants/get-atualizacoes'
 // import Helpers from '@/components/Helpers'
 // const { numero, data, dinheiro } = Helpers
 const numero = v => v ? Number(v).toFixed(2).replace('.', ',') : ''
@@ -60,20 +59,19 @@ const tableFields = [
   'estado',
   {key: 'escopo_previsto', label: 'E*', formatter: numero},
   {key: 'escopo_realizado', label: 'E', formatter: numero},
-  {key: 'inicio_previsto', label: 'T0*', formatter: data()},
-  {key: 'fim_previsto', label: 'Tf*', formatter: data()},
-  {key: 'inicio_realizado', label: 'T0', formatter: data()},
-  {key: 'fim_realizado', label: 'Tf', formatter: data()},
-  {key: 'custo_previsto', label: 'C*', formatter: dinheiro()},
-  {key: 'custo_realizado', label: 'C', formatter: dinheiro()},
-  {key: 'createdAt', label: 'Data', formatter: data()}
+  {key: 'inicio_previsto', label: 'T0*', formatter: this.date},
+  {key: 'fim_previsto', label: 'Tf*', formatter: this.date},
+  {key: 'inicio_realizado', label: 'T0', formatter: this.date},
+  {key: 'fim_realizado', label: 'Tf', formatter: this.date},
+  {key: 'custo_previsto', label: 'C*', formatter: this.money},
+  {key: 'custo_realizado', label: 'C', formatter: this.money},
+  {key: 'createdAt', label: 'Data', formatter: this.date}
 ]
 export default {
   name: 'Meta',
   data () {
     return {
       loading: 0,
-      atualizacoes: [],
       fields: tableFields,
       meta: {}
     }
@@ -85,15 +83,9 @@ export default {
   apollo: {
     meta: {
       query: GET_META,
+      fetchPolicy: 'network-only',
       variables () {
         return { metaId: this.$route.params.meta }
-      }
-    },
-    atualizacoes: {
-      query: GET_ATUALIZACOES,
-      variables () {
-        let meta = this.$route.params.meta
-        return JSON.stringify({ filter: { where: { meta } } })
       }
     }
   }

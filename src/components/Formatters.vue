@@ -1,20 +1,26 @@
 <script>
 import Helpers from '@/components/Helpers'
-
+const toDate = v => typeof v === 'number' ? new Date(v) : typeof v === 'string' ? new Date(Number(v)) : null
 export default {
   // FORMATADORES  DE CAMPOS:
-  deadline (v) { // formatador do prazo
+  escopo (v, k, i) {
+    let n = v => (Number(v) || 0)
+    let s = v => Helpers.numero()(n(v))
+    let r = n(i.escopo_realizado)
+    let p = n(i.escopo_previsto)
+    let percent = r / (p || 1)
+    let status = isNaN(percent) ? 'info' : (percent < 1 ? (percent < 0.5 ? 'danger' : 'warning') : 'success')
+    return `<span class="text-${status}">${s(r)}/<small>${s(p)}</small><br/>${s(percent * 100)} %</span>`
+  },
+  deadline (f, k, v) { // formatador do prazo
     let literal = v.literalDates || false
-    let p = v.predicted || {}
-    let r = v.realized || {}
-    let predictedStartDate = Helpers.createBRDate(p.start || null)
-    let predictedEndDate = Helpers.createBRDate(p.end || null)
-    let realizedStartDate = Helpers.createBRDate(r.start || null)
-    let realizedEndDate = Helpers.createBRDate(r.end || null)
-
+    let predictedStartDate = toDate(v.inicio_previsto)
+    let predictedEndDate = toDate(v.fim_previsto)
+    let realizedStartDate = toDate(v.inicio_realizado)
+    let realizedEndDate = toDate(v.fim_realizado)
     if (realizedEndDate !== null) { // se temos data de fim de meta
       if (literal) {
-        return `finalizado<br>${Helpers.getBRDate(realizedEndDate)}`
+        return `finalizado<br>${(realizedEndDate).toLocaleDateString()}`
       }
       let daysOfDatesDiff
       if (predictedEndDate === null) {
@@ -28,7 +34,7 @@ export default {
         } else if (daysOfDatesDiff < 0) {
           return '<span class="text-primary">adiantou</span><br>' + descritiveDays
         } else {
-          return '<span class="text-success">no prazo</span><br>' + Helpers.getBRDate(realizedEndDate)
+          return '<span class="text-success">no prazo</span><br>' + (realizedEndDate).toLocaleDateString()
         }
       } else {
         if (daysOfDatesDiff === 0) {
@@ -39,7 +45,7 @@ export default {
       }
     } else if (predictedEndDate !== null && realizedStartDate !== null) { // se temos data prevista para o fim da meta
       if (literal) {
-        return `termina<br>${Helpers.getBRDate(predictedEndDate)}`
+        return `termina<br>${(predictedEndDate).toLocaleDateString()}`
       }
       let daysUntilDeadline = Helpers.getDaysFromDate(predictedEndDate - (new Date()))
       let descritiveDeadline = `${Math.abs(daysUntilDeadline)} dia${Helpers.plural(daysUntilDeadline)}`
@@ -48,25 +54,29 @@ export default {
       } else if (daysUntilDeadline < 0) {
         return '<span class="text-danger">atrasado</span><br>' + descritiveDeadline
       } else {
-        return '<span class="text-danger">vence hoje</span><br>' + Helpers.getBRDate(new Date())
+        return '<span class="text-danger">vence hoje</span><br>' + (new Date()).toLocaleDateString()
       }
     } else if (realizedStartDate !== null) { // se temos apenas um começo sem final definido
       if (literal) {
-        return `começou<br>${Helpers.getBRDate(realizedStartDate)}`
+        return `começou<br>${(realizedStartDate).toLocaleDateString()}`
       }
       let daysFromMilestoneStarted = Helpers.getDaysFromDate((new Date()) - realizedStartDate)
       return `começou há<br>${daysFromMilestoneStarted} dia${Helpers.plural(daysFromMilestoneStarted)}`
     } else if (predictedStartDate !== null) { // se temos apenas uma previsão de início
       if (literal) {
-        return 'início<br>' + Helpers.getBRDate(predictedStartDate)
+        return 'início<br>' + (predictedStartDate).toLocaleDateString()
       }
       let descritiveText
       let daysToMilestone = Helpers.getDaysFromDate(predictedStartDate - (new Date()))
-      let descritiveDaysToMilestone = `<br>${Math.abs(daysToMilestone)} dia${Helpers.plural(daysToMilestone)}`
+      let descritiveDaysToMilestone = `
+        <br>
+        ${Math.abs(daysToMilestone)}
+        dia${Helpers.plural(daysToMilestone)}
+        ${daysToMilestone < 0 ? ' atrás' : ''}`
       if (daysToMilestone > 0) {
         descritiveText = 'começará em'
       } else if (daysToMilestone < 0) {
-        descritiveText = '<span class="text-danger">começaria</span> em'
+        descritiveText = '<span class="text-danger">começaria</span> '
       } else {
         descritiveText = '<span class="text-warning">começa hoje</span>'
       }

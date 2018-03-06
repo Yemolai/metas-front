@@ -54,6 +54,41 @@ export default gql`
           nome
         }
       }
+      atualizacoes {
+        id
+        titulo
+        resumo
+        estado
+        escopo_previsto
+        escopo_realizado
+        inicio_previsto
+        inicio_realizado
+        fim_previsto
+        fim_realizado
+        custo_previsto
+        custo_realizado
+        createdAt
+        autor {
+          id
+          nome
+        }
+        meta {
+          id
+          titulo
+        }
+        responsavel {
+          id
+          nome
+        }
+        pai {
+          id
+          titulo
+        }
+        coordenadoria {
+          id
+          sigla
+        }
+      }
     }
   }
 `

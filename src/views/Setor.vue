@@ -22,7 +22,7 @@
             v-if="can('coord_create')"
             @click="goToAddCoordenadoria"
           ) Criar nova coordenadoria
-      b-table(striped stacked :items='setor.coordenadorias' :fields='fields' @row-clicked='goToCoordDetails')
+      b-table(striped stacked='sm' :items='setor.coordenadorias' :fields='fields' @row-clicked='goToCoordDetails')
 </template>
 <script>
 import GET_SETOR from '@/constants/get-setor'
@@ -53,7 +53,7 @@ export default {
         { key: 'responsavel', label: 'Responsável', formatter: v => (('nome' in v) ? v.nome : '') },
         'telefone',
         'ramal',
-        { key: 'metas', formatter: v => v.length }
+        { key: 'metas', formatter: v => v ? v.length : '' }
       ],
       user: { permissions: { coord_create: true } }
     }

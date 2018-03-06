@@ -31,7 +31,7 @@
           ) Criar nova meta
       b-table(
         striped
-        stacked
+        stacked='sm'
         :items='coordenadoria.metas'
         :fields='fields'
         @row-clicked='goToMetaDetails'
@@ -86,6 +86,7 @@ export default {
   apollo: {
     coordenadoria: {
       query: GET_COORDENADORIA,
+      fetchPolicy: 'network-only',
       variables () {
         return {
           coordId: this.$route.params.setorId

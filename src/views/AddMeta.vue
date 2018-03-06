@@ -118,7 +118,7 @@ export default {
     diretoria: function () {
       if (
         !('setor' in this.$route.params) ||
-        this.setores === null ||
+        !this.setores ||
         this.setores.length === 0
       ) {
         console.log('Have no setor', this.$route.params, this.setores)

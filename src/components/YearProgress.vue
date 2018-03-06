@@ -17,7 +17,19 @@ export default {
     'months'
   ],
   data () {
-    let defaultMonths = ['Jan', 'Fev', 'Mar', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    let w = window.innerWidth
+    let defaultMonths = []
+    if (w >= 1200) {
+      defaultMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    } else if (w >= 992) {
+      defaultMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    } else if (w >= 768) {
+      defaultMonths = ['Jan', 'Fev', 'Abr', '...', 'Set', 'Nov', 'Dez']
+    } else if (w >= 576) {
+      defaultMonths = ['Jan', 'Mar', 'Jun', 'Jul', 'Out', 'Dez']
+    } else if (w < 576) {
+      defaultMonths = ['Jan', 'Jun', 'Jul', 'Dez']
+    }
     let now = new Date()
     let start = new Date(now.getFullYear(), 0, 0)
     let diff = now - start
