@@ -110,10 +110,10 @@ export default {
     (<span class="${level}">${(progress * 100).toFixed(2)}%</span>)</small>`
   },
   cost: v => { // formatador de custo
-    if (!v || (Number(v.realized) === 0 && Number(v.predicted === 0))) {
+    if (!v || (Number(v.custo_realizado) === 0 && Number(v.custo_previsto === 0))) {
       return ''
     }
-    return `R$ ${(Number(v.realized)).toFixed(2)}/R$ ${(Number(v.predicted)).toFixed(2)}`
+    return `R$ ${(Number(v.custo_realizado)).toFixed(2)}/R$ ${(Number(v.custo_previsto)).toFixed(2)}`
   }
 }
 </script>
