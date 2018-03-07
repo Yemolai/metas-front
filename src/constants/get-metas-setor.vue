@@ -1,11 +1,14 @@
 <script>
 import gql from 'graphql-tag'
 export default gql`
-  query GET_METAS_SETOR ($setorId: ID!){
+  query GET_METAS_SETOR ($setorId: ID!) {
     setor(id: $setorId) {
       id
       sigla
+      nome
       coordenadorias {
+        sigla
+        nome
         metas {
           id
           titulo
@@ -21,7 +24,13 @@ export default gql`
           custo_previsto
           custo_realizado
           coordenadoria {
+            id
             sigla
+            nome
+            setor {
+              id
+              sigla
+            }
           }
         }
       }
