@@ -26,9 +26,16 @@
         RadialProgress(:chart-data='[[75, 100]]').limit-height.negative-borders
     //- tabela:
     b-container.table.text-left
-      b-table(:items='metas' :fields='campos' stacked='md' striped)
+      b-table(
+        @row-clicked='goToMeta'
+        :items='metas'
+        :fields='campos'
+        stacked='md'
+        striped
+      )
 </template>
 <script>
+import router from '@/router'
 import YearProgress from '@/components/YearProgress'
 import RadialProgress from '@/components/RadialProgress'
 import Formatters from '@/components/Formatters'
@@ -49,6 +56,20 @@ export default {
   components: {
     YearProgress,
     RadialProgress
+  },
+  methods: {
+    goToMeta: function (item) {
+      return router
+        .push({
+          name: 'Meta',
+          params: {
+            setor: item.coordenadoria.setor.sigla,
+            coordenadoria: item.coordenadoria.sigla,
+            year: (new Date()).getFullYear(),
+            meta: item.id
+          }
+        })
+    }
   },
   computed: {
     metas: function () {
