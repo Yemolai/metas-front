@@ -1,6 +1,7 @@
 <template lang='pug'>
   b-container#painel-de-resultados
-    b-row
+    h4(v-if="loading") Carregando...
+    b-row(v-else)
       b-col(md='10' sm='12')
         b-row
           //- Barra de progresso de ano
@@ -19,17 +20,13 @@
                 option(:value='null' disabled) -- Escolha uma diretoria --
           b-col(cols='8').diretoria-nome
             p.text-left(v-if='form.diretoria !== null')
-              span {{ setores[form.diretoria].nome || '' }}
+              span {{ setor.nome || '' }}
       b-col(v-if='w > 992' md='2' sm='12')
         //- Esse componente ainda não é dinâmico
         RadialProgress(:chart-data='[[75, 100]]').limit-height.negative-borders
+    //- tabela:
     b-container.table.text-left
-      b-table(
-        :items='tableItems'
-        :fields='tableFields'
-        stacked='md'
-        striped
-      )
+      b-table(:items='metas' :fields='campos' stacked='md' striped)
 </template>
 <script>
 import YearProgress from '@/components/YearProgress'
@@ -38,12 +35,14 @@ import Formatters from '@/components/Formatters'
 import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
-const tableFields = [
-  {key: 'titulo', label: 'Descrição'},
+const campos = [
+  {key: 'setor', formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla}/${i.coordenadoria.sigla}` : ''},
+  {key: 'titulo', label: 'Meta'},
   {key: 'resumo', label: 'Ação/Análise'},
-  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome},
+  {key: 'responsavel', label: 'Responsável', formatter: v => v ? v.nome : ''},
   {key: 'escopo', formatter: Formatters.escopo},
-  {key: 'prazo', formatter: Formatters.deadline}
+  {key: 'prazo', formatter: Formatters.deadline},
+  {key: 'custo', formatter: Formatters.cost}
 ]
 export default {
   name: 'painel-de-resultados',
@@ -52,40 +51,40 @@ export default {
     RadialProgress
   },
   computed: {
+    metas: function () {
+      if (this.form.diretoria === null || this.loading === 1) {
+        return []
+      }
+      return this.setor.coordenadorias
+        .map(coordenadoria => (coordenadoria.metas || []))
+        .reduce((p, a) => p.concat(a), [])
+    },
     w: () => window.innerWidth,
     listaDiretorias: function () { // lista para o dropdown
       return this.setores.map(_diretoria => {
-        let { sigla, nome } = _diretoria
-        return { sigla, nome } // sigla é o text, nome é o value
+        let { id, sigla, nome } = _diretoria
+        return { id, sigla, nome } // sigla é o text, nome é o value
       })
-    },
-    tableItems: function () { // lista de itens pra preencher a tabela
-      if (this.form.diretoria === null) { return [] }
-      let diretoria = this.setores
-        .filter(diretoria => diretoria.nome === this.form.diretoria)
-        .reduce((p, a) => a, {})
-      return diretoria.coordenadorias.map(c => c.metas).reduce((p, a) => a, [])
     }
   },
   data () {
     return {
+      loading: 0,
       form: {
         diretoria: null
       },
       setores: [],
-      metas: [],
+      setor: {},
       progress: [[160, 280]],
-      tableFields
+      campos
     }
   },
   apollo: {
     setores: {
       query: GET_SETORES
     },
-    metas: {
+    setor: {
       query: function () {
-        console.log('this.form.diretoria', this.form.diretoria)
-        console.log('this.setores', this.setores)
         if (this.form.diretoria === null) {
           return gql`
               {
@@ -98,10 +97,7 @@ export default {
         return GET_METAS_SETOR
       },
       variables: function () {
-        if (this.form.diretoria === null) {
-          return { setorId: 0 }
-        }
-        return { setorId: this.form.diretoria }
+        return { setorId: (this.form.diretoria === null) ? 0 : this.form.diretoria }
       }
     }
   }
