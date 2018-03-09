@@ -7,6 +7,7 @@ export default gql`
       sigla
       nome
       coordenadorias {
+        id
         sigla
         nome
         metas {
