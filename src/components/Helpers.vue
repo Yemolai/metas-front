@@ -1,14 +1,18 @@
 <script>
 export default {
   numero (decimal = ',', thousands = '.') {
-    return (v) => v ? Number(v).toFixed(2).replace('.', decimal) : ''
+    return v => v ? Number(v).toFixed(2).replace('.', decimal) : ''
   },
   data (locale = 'pt-BR') {
-    return (v) => v ? new Date(v).toLocaleDateString(locale) : ''
+    return v => v ? new Date(v).toLocaleDateString(locale) : ''
+  },
+  timestamp (locale = 'pt-BR') {
+    return v => v ? new Date(v).toLocaleString() : ''
   },
   dinheiro (currency = 'R$', position = 'pre', decimal = ',', thousands = '.') {
-    return (value) => {
-      let numero = value.toFixed(2).split('.')
+    return v => {
+      if (!v) return ''
+      let numero = v.toFixed(2).split('.')
       numero[0] = numero[0].split(/(?=(?:...)*$)/).join('.')
       if (position !== 'pre') {
         return numero.join(',') + '' + currency
