@@ -8,6 +8,7 @@ import Coordenadoria from '@/views/Coordenadoria'
 import AddSetor from '@/views/AddSetor'
 import AddCoordenadoria from '@/views/AddCoordenadoria'
 import AddMeta from '@/views/AddMeta'
+import UpdateMeta from '@/views/UpdateMeta.vue'
 
 Vue.use(Router)
 
@@ -52,6 +53,11 @@ export default new Router({
       path: '/:setor/:coordenadoria/add',
       name: 'AddMeta',
       component: AddMeta,
+      props: true
+    }, {
+      path: '/:setor(\\w+)/:coordenadoria(\\w+)/:year(\\d+)/:meta(\\d+)/update',
+      name: 'UpdateMeta',
+      component: UpdateMeta,
       props: true
     }
   ]
