@@ -32,7 +32,7 @@
               step='0.01'
               placeholder='99,9'
             )#form-input-escopo-previsto
-        b-col(sm='12' md='6')
+        b-col(sm='12' md='3')
           b-form-group(
             label='Início previsto'
             label-for='form-input-inicio-previsto'
@@ -43,6 +43,17 @@
               v-model='form.inicio_previsto'
               required
             )#form-input-inicio-previsto
+        b-col(sm='12' md='3')
+          b-form-group(
+            label='Fim previsto'
+            label-for='form-input-fim-previsto'
+            description='Data prevista para o fim da execução'
+          )
+            b-form-input(
+              type='date'
+              v-model='form.fim_previsto'
+              required
+            )#form-input-fim-previsto
         b-col(sm='12' md='3')
           b-form-group(
             label='Custo previsto'
@@ -67,6 +78,7 @@
             b-select(
               :options='listaUsuarios'
               v-model='form.responsavel'
+              value-field='id'
             )#form-input-responsavel
       b-row
         b-col.text-right
@@ -153,15 +165,17 @@ export default {
     },
     submit: function (e) {
       e.preventDefault()
+      // ISSO AQUI DEVE SER ALTERADO AO IMPLEMENTAR AUTENTICAÇÃO
+      this.form.autor = 1
       let variables = {
         titulo: this.form.titulo,
-        escopo_previsto: this.form.escopo_previsto,
-        inicio_previsto: this.form.inicio_previsto,
-        fim_previsto: this.form.fim_previsto,
-        custo_previsto: this.form.custo_previsto,
-        coordenadoria: this.coordenadoria.id,
-        responsavel: this.form.responsavel,
-        autor: this.form.autor
+        escopo_previsto: Number(this.form.escopo_previsto),
+        inicio_previsto: new Date(this.form.inicio_previsto),
+        fim_previsto: new Date(this.form.fim_previsto),
+        custo_previsto: Number(this.form.custo_previsto),
+        coordenadoria: Number(this.coordenadoria.id),
+        responsavel: Number(this.form.responsavel),
+        autor: Number(this.form.autor)
       }
       console.log('variables', variables)
       let mutation = INSERT_META
