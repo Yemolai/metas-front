@@ -10,7 +10,8 @@ export default {
     let p = n(i.escopo_previsto)
     let percent = r / (p || 1)
     let status = isNaN(percent) ? 'info' : (percent < 1 ? (percent < 0.5 ? 'danger' : 'warning') : 'success')
-    return `<span class="text-${status}">${s(r)}/<small>${s(p)}</small><br/>${s(percent * 100)} %</span>`
+    return `<span class="text-${status}">${s(r) || '0,00'}/<small>${s(p) || '0,00'}</small>
+      <br/>${s(percent * 100) || '0'} %</span>`
   },
   deadline (f, k, v) { // formatador do prazo
     let literal = v.literalDates || false
@@ -110,10 +111,19 @@ export default {
     (<span class="${level}">${(progress * 100).toFixed(2)}%</span>)</small>`
   },
   cost: v => { // formatador de custo
-    if (!v || (Number(v.custo_realizado) === 0 && Number(v.custo_previsto === 0))) {
+    let p = Number(v.custo_previsto)
+    let r = Number(v.custo_realizado)
+    p = isNaN(p) ? 0 : p
+    r = isNaN(r) ? 0 : r
+    if (!v || (r === 0 && p === 0)) {
       return ''
     }
-    return `R$ ${(Number(v.custo_realizado)).toFixed(2)}/R$ ${(Number(v.custo_previsto)).toFixed(2)}`
+    let money = Helpers.dinheiro()
+    let num = Helpers.numero()
+    let percent = r / p
+    let status = (percent > 1) ? 'danger' : percent <= 1 ? 'success' : 'warning'
+    return `<span class="text-${status}">${money(r) || 'R$ 0,00'}/${money(p) || '0,00'}
+      <br/> ${num(percent) || '0'} %`
   }
 }
 </script>
