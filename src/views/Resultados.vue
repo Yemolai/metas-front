@@ -49,7 +49,7 @@ const campos = [
   {key: 'responsavel', label: 'Responsável', formatter: v => v ? v.nome : ''},
   {key: 'escopo', formatter: Formatters.escopo},
   {key: 'prazo', formatter: Formatters.deadline},
-  {key: 'custo', formatter: Formatters.cost}
+  {key: 'custo', formatter: (v, k, i) => Formatters.cost(i)}
 ]
 export default {
   name: 'painel-de-resultados',
