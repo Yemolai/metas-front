@@ -13,6 +13,11 @@ export default gql`
         id
         nome
       }
+      coordenadorias {
+        id
+        sigla
+        nome
+      }
     }
   }
 `
