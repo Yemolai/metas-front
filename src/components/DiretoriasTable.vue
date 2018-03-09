@@ -1,6 +1,13 @@
 <template lang="pug">
   // Component structure goes here
   #diretorias-table.text-left
+    b-row
+      b-col.text-right
+        b-btn.floating(
+          variant='primary'
+          v-if="can('setor_create')"
+          @click="goTo({name:'AddSetor'})"
+        ) Criar nova diretoria
     h4(
       v-if='loading'
     ) Carregando...
@@ -34,11 +41,15 @@ const capitalize = v => { // pra capitalizar as palavras de uma frase
   } // se não retorn v mesmo, paciência...
   return v
 }
-
+import router from '@/router'
 export default {
   // Component logic goes here
   name: 'DiretoriasTable',
   methods: {
+    can: function (permissao) {
+      return !!this.user.permissoes[permissao]
+    },
+    goTo: (...args) => (router.push(...args)),
     rowClicked: item => router.push({
       name: 'Setor',
       params: { setorId: item.id }
@@ -47,6 +58,7 @@ export default {
   data () {
     return {
       loading: 0,
+      user: { permissoes: { setor_create: true } },
       setores: [], // definição dos dados da tabela
       fields: [ // definição das colunas da tabela
         // { key: 'id', label: '#' },
