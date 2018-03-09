@@ -16,6 +16,7 @@ export default gql`
       fim_realizado
       custo_previsto
       custo_realizado
+      createdAt
       pai {
         id
         titulo
