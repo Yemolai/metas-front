@@ -24,7 +24,7 @@ export default {
     } else if (w >= 992) {
       defaultMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     } else if (w >= 768) {
-      defaultMonths = ['Jan', 'Fev', 'Abr', '...', 'Set', 'Nov', 'Dez']
+      defaultMonths = ['Jan', 'Abr', '...', 'Set', 'Dez']
     } else if (w >= 576) {
       defaultMonths = ['Jan', 'Mar', 'Jun', 'Jul', 'Out', 'Dez']
     } else if (w < 576) {
