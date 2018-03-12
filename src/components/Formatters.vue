@@ -122,7 +122,8 @@ export default {
     let num = Helpers.numero()
     let percent = r / p
     let status = (percent > 1) ? 'danger' : percent <= 1 ? 'success' : 'warning'
-    return `<span class="text-${status}">${money(r) || 'R$ 0,00'}/${money(p) || '0,00'}
+    return `<span class="text-${status}">${money(r) || 'R$ 0,00'}
+      <small>/${money(p) || '0,00'}</small>
       <br/> ${num(percent) || '0'} %`
   }
 }
