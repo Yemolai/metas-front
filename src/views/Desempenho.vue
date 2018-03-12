@@ -1,8 +1,10 @@
 <template lang="pug">
   b-container#painel-de-desempenho
+    h3.text-center.mt-4 Painel de desempenho
+    hr
     h4(v-if='loading') Carregando...
     b-row(v-else)
-      b-col(cols="10" sm='12')
+      b-col(md="10" sm='12')
         b-row
           //- Barra de progresso de ano
           b-col(cols='12').year-progress-container
@@ -35,15 +37,18 @@
           b-col(cols='8').coordenadoria-nome
             p.text-left(v-if='form.coordenadoria !== null')
               span {{ coordenadoria.nome || '' }}
-      //- tabela:
-      b-container.table.text-left
-        b-table(
-          @row-clicked='goToMeta'
-          :items='metas'
-          :fields='campos'
-          stacked='md'
-          striped
-        )
+      b-col(v-if='w > 992' md='2' sm='12')
+        //- Esse componente ainda não é dinâmico
+        RadialProgress(:data='[[progressoEscopo, 100]]').limit-height.negative-borders
+    //- tabela:
+    b-container.table.text-left
+      b-table(
+        @row-clicked='goToMeta'
+        :items='metas'
+        :fields='campos'
+        stacked='md'
+        striped
+      )
 </template>
 
 <script>
@@ -126,6 +131,16 @@ export default {
       let setor = this.setores.filter(setor => setor.id === selectedSetor)
         .reduce((p, a) => a, {})
       return setor.coordenadorias || []
+    },
+    progressoEscopo: function () {
+      if (this.form.diretoria === null || this.metas.length < 1) {
+        return 0
+      }
+      let valores = this.metas
+        .map(m => m.escopo_realizado && m.escopo_previsto ? m.escopo_realizado / m.escopo_previsto : 0)
+      let soma = valores
+        .reduce((p, a) => (p + a), 0)
+      return (soma / this.metas.length) * 100
     }
   },
   data () {

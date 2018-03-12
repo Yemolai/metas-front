@@ -2,13 +2,14 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
 import Painel from '@/views/Painel'
+import PainelResultados from '@/views/Resultados'
+import PainelDesempenho from '@/views/Desempenho'
 import Meta from '@/views/Meta'
 import Setor from '@/views/Setor'
 import Coordenadoria from '@/views/Coordenadoria'
 import AddSetor from '@/views/AddSetor'
 import AddCoordenadoria from '@/views/AddCoordenadoria'
 import AddMeta from '@/views/AddMeta'
-import UpdateMeta from '@/views/UpdateMeta.vue'
 
 Vue.use(Router)
 
@@ -20,9 +21,23 @@ export default new Router({
       component: Home
     },
     {
-      path: '/painel',
+      path: '/painel/',
       name: 'Painel',
       component: Painel
+    },
+    {
+      // path: '/painel/:setor(\\w+)?/:page(\\d+)?',
+      path: '/painel/resultados/:setor?',
+      name: 'PainelResultados',
+      component: PainelResultados,
+      props: true
+    },
+    {
+      // path: '/painel/:setor(\\w+)?/:coordenadoria(\\w+)?/:page(\\d+)?',
+      path: '/painel/desempenho/:coordenadoria?',
+      name: 'PainelDesempenho',
+      component: PainelDesempenho,
+      props: true
     },
     { // por enquanto o :year está sendo ignorado
       path: '/:setor(\\w+)/:coordenadoria(\\w+)/:year(\\d+)/:meta(\\d+)',
@@ -53,11 +68,6 @@ export default new Router({
       path: '/:setor/:coordenadoria/add',
       name: 'AddMeta',
       component: AddMeta,
-      props: true
-    }, {
-      path: '/:setor(\\w+)/:coordenadoria(\\w+)/:year(\\d+)/:meta(\\d+)/update',
-      name: 'UpdateMeta',
-      component: UpdateMeta,
       props: true
     }
   ]

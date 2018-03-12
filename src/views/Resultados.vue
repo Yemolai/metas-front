@@ -1,5 +1,7 @@
 <template lang='pug'>
   b-container#painel-de-resultados
+    h3.text-center.mt-4 Painel de resultados
+    hr
     h4(v-if="loading") Carregando...
     b-row(v-else)
       b-col(md='10' sm='12')
@@ -23,7 +25,7 @@
               span {{ setor.nome || '' }}
       b-col(v-if='w > 992' md='2' sm='12')
         //- Esse componente ainda não é dinâmico
-        RadialProgress(:chart-data='[[75, 100]]').limit-height.negative-borders
+        RadialProgress(:data='[[progressoEscopo, 100]]').limit-height.negative-borders
     //- tabela:
     b-container.table.text-left
       b-table(
@@ -43,10 +45,10 @@ import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
 const campos = [
-  {key: 'setor', formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla}/${i.coordenadoria.sigla}` : ''},
+  {key: 'setor', formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla} / ${i.coordenadoria.sigla}` : ''},
   {key: 'titulo', label: 'Meta'},
   {key: 'resumo', label: 'Ação/Análise'},
-  {key: 'responsavel', label: 'Responsável', formatter: v => v ? v.nome : ''},
+  {key: 'responsavel', label: 'Responsável', formatter: v => v && v !== null ? v.nome : ''},
   {key: 'escopo', formatter: Formatters.escopo},
   {key: 'prazo', formatter: Formatters.deadline},
   {key: 'custo', formatter: (v, k, i) => Formatters.cost(i)}
@@ -72,6 +74,16 @@ export default {
     }
   },
   computed: {
+    progressoEscopo: function () {
+      if (this.form.diretoria === null || this.metas.length < 1) {
+        return 0
+      }
+      let valores = this.metas
+        .map(m => m.escopo_realizado && m.escopo_previsto ? m.escopo_realizado / m.escopo_previsto : 0)
+      let soma = valores
+        .reduce((p, a) => (p + a), 0)
+      return (soma / this.metas.length) * 100
+    },
     metas: function () {
       if (this.form.diretoria === null || this.loading === 1) {
         return []
