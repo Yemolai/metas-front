@@ -125,6 +125,55 @@ export default {
     return `<span class="text-${status}">${money(r) || 'R$ 0,00'}
       <small>/${money(p) || '0,00'}</small>
       <br/> ${num(percent) || '0'} %`
+  },
+  prazo (options) {
+    let data_descritiva = (_data) => {
+      let data = (typeof _data === 'number') ? new Date(Math.abs(_data)) : _data
+      if (data instanceof Date) {
+        let descricao = []
+        let anos = data.getFullYear()
+        let meses = data.getMonth()
+        let dias = data.getDate()
+        descricao.push((anos > 0) ? anos + ' ano' + (anos === 1 ? '' : 's') : false)
+        descricao.push((meses > 0) ? meses + ' ' + (meses === 1 ? 'mês' : 'meses') : false)
+        descricao.push((dias > 0) ? (dias + ' dia' + (dias === 1) ? '' : 's') : false)
+        return descricao.filter(a => a).join(' e ')
+      } else {
+        return null
+      }
+    }
+    return (v, k, i) => {
+      let { inicio_previsto, fim_previsto, inicio_realizado, fim_realizado } = i
+      console.log('inicio_previsto:', inicio_previsto, 'fim_previsto:', fim_previsto, 'inicio_realizado:', inicio_realizado, 'fim_realizado:', fim_realizado)
+      let days = 0
+      let today = new Date()
+      let ip = !!inicio_previsto
+      let fp = !!fim_previsto
+      let ir = !!inicio_realizado
+      let fr = !!fim_realizado
+      if (ip) {
+        if (fp) {
+          if (ir) {
+            if (fr) { // inicio_previsto, fim_previsto, inicio_realizado, fim_realizado
+              days = (today - (new Date(fim_realizado)))
+              return `finalizado há ${data_descritiva(days)} (${(new Date(days)).toLocaleDateString()})`
+            } else if (!fr) { // inicio_previsto, fim_previsto, inicio_realizado
+              days = ((new Date(fim_previsto)) - today)
+              return data_descritiva(days) + ' (' + (new Date(days)).toLocaleDateString() + ')'
+            }
+          } else if (!ir) {
+            if (fr) { // inicio_previsto, fim_previsto, fim_realizado
+              return `[fim sem início]`
+            } else if (!fr) { // inicio_previsto, fim_previsto
+              return 'começo previsto: ' + (new Date(inicio_previsto)).toLocaleDateString()
+            }
+          }
+        } else if (!fp) { // inicio_previsto
+          return `[falta fim previsto]`
+        }
+      } // nenhum dado
+      return `[sem previsão]`
+    }
   }
 }
 </script>

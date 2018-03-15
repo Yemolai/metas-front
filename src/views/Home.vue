@@ -1,6 +1,6 @@
 <template lang="pug">
   .hello.container.text-left
-    h2 Metas
+    h2 Suas metas
     b-table(
       v-if='!loading && usuario.responsabilidade'
       :fields='fields'

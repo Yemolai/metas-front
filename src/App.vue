@@ -27,6 +27,9 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+*:focus {
+  outline: none !important;
+}
 .navbar {
   margin-bottom: 1rem;
 }

@@ -1,6 +1,7 @@
 <template lang="pug">
-  // Component structure goes here
-  #diretorias-table.text-left
+  #diretorias-table.container.text-left
+    h2.text-center D
+      small IRETORIAS
     b-row
       b-col.text-right
         b-btn.floating(
@@ -24,7 +25,6 @@
 <script>
 import gql from 'graphql-tag'
 import router from '@/router'
-
 const uppercase = v => (typeof v === 'string') ? v.toUpperCase() : v
 const capitalize = v => { // pra capitalizar as palavras de uma frase
   if (typeof v === 'string') { // se v é string
@@ -41,10 +41,9 @@ const capitalize = v => { // pra capitalizar as palavras de uma frase
   } // se não retorn v mesmo, paciência...
   return v
 }
-import router from '@/router'
+
 export default {
   // Component logic goes here
-  name: 'DiretoriasTable',
   methods: {
     can: function (permissao) {
       return !!this.user.permissoes[permissao]
@@ -68,7 +67,8 @@ export default {
           key: 'responsavel',
           label: 'Responsável',
           formatter: v => (v ? v.nome : '--')
-        }
+        },
+        { key: 'ramal' }
       ]
     }
   },

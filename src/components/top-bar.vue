@@ -100,9 +100,6 @@ export default {
     width: auto;
     border-radius: 1rem;
   }
-  *:focus {
-    outline: none !important;
-  }
   .form-control,input {
     border-radius: 0.2rem;
     border: rgba(0,0,0,0);

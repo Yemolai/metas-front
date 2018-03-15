@@ -1,27 +1,26 @@
 <template lang="pug">
   #diretoria-view.container.text-left
-    b-btn(
-      @click='backToMain'
-      variant='outline-secondary'
-    ).mb-2 Voltar para lista de diretorias
-    h3 Diretoria
+    b-btn(@click="go({name: 'Diretorias'})" variant='outline-secondary').mb-2
+      span Lista de diretorias
+    h2.text-center D
+      small IRETORIA
     h4(v-if="loading") Carregando...
     div(v-else)#diretoria-details
-      h4 {{ setor.sigla || '' }} - {{ setor.nome || '' }}
-        br
-        small(v-if='setor.responsavel') Responsável: {{ setor.responsavel.nome }}
+      h4.text-center {{ setor.sigla || '' }} - {{ setor.nome || '' }}
+      p(v-if='setor.responsavel') Diretor responsável: {{ setor.responsavel.nome }}
       p(v-if='setor.endereco') Endereço: {{ setor.endereço }}
       p(v-if='setor.telefone') Telefone: {{ setor.telefone }}
       span(v-if='setor.ramal') (ramal {{ setor.ramal }})
-      b-row
-        b-col
-          h5 Coordenadorias
-        b-col.text-right
-          b-btn.floating(
+      b-row.mt-3
+        b-col(sm='12' md='8')
+          h4.mt-2 Coordenadorias:
+        b-col(sm='12' md='4').text-right
+          b-btn(
             variant='primary'
             v-if="can('coord_create')"
             @click="goToAddCoordenadoria"
-          ) Criar nova coordenadoria
+          ).floating
+            span Criar nova coordenadoria
       b-table(striped stacked='sm' :items='setor.coordenadorias' :fields='fields' @row-clicked='goToCoordDetails')
 </template>
 <script>
@@ -40,8 +39,7 @@ export default {
         name: 'Coordenadoria',
         params: { setorId: this.setor.id, coordId: item.id }
       })
-    },
-    backToMain: () => router.go(-1)
+    }
   },
   data () {
     return {

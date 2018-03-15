@@ -1,20 +1,21 @@
 <template lang="pug">
   #coordenadoria-view.container.text-left
     b-btn(
-      @click='backToSetor'
+      v-if='coordenadoria.setor'
+      @click="go({ name: 'Setor', params: { setorId: coordenadoria.setor.id } })"
       variant='outline-secondary'
-    ).mb-2 Voltar para diretoria&nbsp;
-      span(v-if='coordenadoria.setor') {{ coordenadoria.setor.sigla }}
-    h3 Coordenadoria
+    ).mb-2
+      span Diretoria {{ coordenadoria.setor.sigla }}
+    h2.text-center C
+      small OORDENADORIA
     h4(v-if='loading') Carregando...
     div(v-else)#coordenadoria-details
-      h4(v-if='coordenadoria')
+      h4(v-if='coordenadoria').text-center
         span(v-if='coordenadoria.setor') {{ coordenadoria.setor.sigla }}\
         span {{ coordenadoria.sigla || '' }} -&nbsp;
         span {{ coordenadoria.nome || '' }}
-        br
-        small(v-if='coordenadoria.responsavel')
-          span Responsável: {{ coordenadoria.responsavel.nome }}
+      p(v-if='coordenadoria.responsavel')
+        span Responsável: {{ coordenadoria.responsavel.nome }}
       p(v-if='coordenadoria.endereco')
         span Endereço: {{ coordenadoria.endereco }}
       p(v-if='coordenadoria.telefone')
@@ -23,7 +24,7 @@
         span (ramal: {{ coordenadoria.ramal }})
       b-row
         b-col
-          h5 Metas
+          h3 Metas:
         b-col.text-right
           b-btn.floating(
             variant='primary'
@@ -39,6 +40,7 @@
 </template>
 <script>
 import router from '@/router'
+import Formatters from '@/components/Formatters'
 import GET_COORDENADORIA from '@/constants/get-coordenadoria'
 export default {
   name: 'Coordenadoria',
@@ -77,8 +79,9 @@ export default {
       fields: [
         'titulo',
         { key: 'responsavel', formatter: v => v ? v.nome : '' },
-        'escopo_previsto',
-        'escopo_realizado'
+        { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
+        { key: 'custo', formatter: (v, k, i) => `R$ ${i.custo_realizado || 0}/${i.custo_previsto || 0}` },
+        { key: 'prazo', formatter: Formatters.prazo() }
       ],
       user: { permissoes: { coord_create: true } }
     }

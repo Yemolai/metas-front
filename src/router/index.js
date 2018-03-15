@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import ListaDiretorias from '@/views/Diretorias'
 import Painel from '@/views/Painel'
 import PainelResultados from '@/views/Resultados'
 import PainelDesempenho from '@/views/Desempenho'
@@ -19,6 +20,11 @@ export default new Router({
       path: '/',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/diretorias',
+      name: 'Diretorias',
+      component: ListaDiretorias
     },
     {
       path: '/painel/',
