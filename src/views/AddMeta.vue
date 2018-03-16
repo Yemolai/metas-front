@@ -195,8 +195,8 @@ export default {
       let variables = {
         titulo: this.form.titulo,
         escopo_previsto: Number(this.form.escopo_previsto),
-        inicio_previsto: new Date(this.form.inicio_previsto),
-        fim_previsto: new Date(this.form.fim_previsto),
+        inicio_previsto: new Date(this.form.inicio_previsto + ' 00:00'),
+        fim_previsto: new Date(this.form.fim_previsto + ' 00:00'),
         custo_previsto: Number(this.form.custo_previsto),
         coordenadoria: Number(this.coordenadoria.id),
         responsavel: Number(this.form.responsavel) || null,
@@ -205,6 +205,7 @@ export default {
       }
       console.log('variables', variables)
       let mutation = INSERT_META
+      let vm = this
       this.$apollo.mutate({
         variables,
         mutation
@@ -215,6 +216,7 @@ export default {
             throw err
           }
           console.log('response', response)
+          vm.$apollo.queries.metas.refetch()
           router.replace({
             name: 'Meta',
             params: {

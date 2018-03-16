@@ -87,6 +87,7 @@ export default {
   },
   apollo: {
     coordenadoria: {
+      fetchPolicy: 'network-only',
       query: GET_COORDENADORIA,
       variables () {
         return {
