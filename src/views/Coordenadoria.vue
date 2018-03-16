@@ -20,9 +20,8 @@
         span Endereço: {{ coordenadoria.endereco }}
       p(v-if='coordenadoria.telefone')
         span Telefone: {{ coordenadoria.telefone }}
-      span(v-if='coordenadoria.ramal')
-        span (ramal: {{ coordenadoria.ramal }})
-      b-row
+        span(v-if='coordenadoria.ramal') &nbsp;(ramal: {{ coordenadoria.ramal }})
+      b-row.mt-3
         b-col
           h3 Metas:
         b-col.text-right
@@ -89,10 +88,9 @@ export default {
   apollo: {
     coordenadoria: {
       query: GET_COORDENADORIA,
-      fetchPolicy: 'network-only',
       variables () {
         return {
-          coordId: this.$route.params.setorId
+          coordId: this.$route.params.coordId
         }
       }
     }

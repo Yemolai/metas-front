@@ -80,6 +80,17 @@
               v-model='form.responsavel'
               value-field='id'
             )#form-input-responsavel
+        b-col(sm='12' md='6')
+          b-form-group(
+            label='Meta pai'
+            label-for='form-input-pai'
+            description='Meta pai da qual esta meta é submeta'
+          )
+            b-select(
+              :options='listaMetas'
+              v-model='form.pai'
+              value-field='id'
+            )
       b-row
         b-col.text-right
           b-btn(
@@ -96,6 +107,7 @@
           ).ml-2.mb-2 Salvar nova meta
 </template>
 <script>
+import gql from 'graphql-tag'
 import router from '@/router'
 import INSERT_META from '@/constants/insert-meta'
 import GET_USUARIOS from '@/constants/get-usuarios'
@@ -106,6 +118,7 @@ const emptyMeta = {
   inicio_previsto: null,
   fim_previsto: null,
   custo_previsto: null,
+  pai: null,
   responsavel: null,
   autor: null
 }
@@ -115,10 +128,22 @@ export default {
     return {
       loading: 0,
       usuarios: [],
+      metas: [],
       form: emptyMeta
     }
   },
   computed: {
+    listaMetas: function () {
+      if (!this.metas) {
+        return []
+      }
+      let lista = this.metas.map(m => ({
+        id: m.id,
+        text: m.id + ' - ' + m.titulo
+      }))
+      lista.unshift({id: null, text: '-- Selecione uma meta pai --'})
+      return lista
+    },
     listaUsuarios: function () {
       let lista = this.usuarios.map(usr => ({
         id: usr.id,
@@ -174,8 +199,9 @@ export default {
         fim_previsto: new Date(this.form.fim_previsto),
         custo_previsto: Number(this.form.custo_previsto),
         coordenadoria: Number(this.coordenadoria.id),
-        responsavel: Number(this.form.responsavel),
-        autor: Number(this.form.autor)
+        responsavel: Number(this.form.responsavel) || null,
+        pai: Number(this.form.pai) || null,
+        autor: Number(this.form.autor) || null
       }
       console.log('variables', variables)
       let mutation = INSERT_META
@@ -208,6 +234,32 @@ export default {
     },
     setores: {
       query: GET_SETORES
+    },
+    metas () {
+      let query = gql`
+        query GET_METAS {
+          setores {
+            id
+            sigla
+            coordenadorias {
+              id
+              sigla
+              metas(submetas: true) {
+                id
+                titulo
+              }
+            }
+          }
+        }
+      `
+      let siglaSetor = this.$route.params.setor
+      let siglaCoordenadoria = this.$route.params.coordenadoria
+      let update = data => data.setores === null ? [] : data.setores
+        .filter(s => s.sigla === siglaSetor)
+        .reduce((p, a) => a.coordenadorias, [])
+        .filter(c => c.sigla === siglaCoordenadoria)
+        .reduce((p, a) => a.metas, [])
+      return { query, update }
     }
   }
 }

@@ -51,12 +51,12 @@ export default new Router({
       component: Meta,
       props: true
     }, {
-      path: '/view/:setorId',
+      path: '/view/:setorId(\\d+)',
       name: 'Setor',
       component: Setor,
       props: true
     }, {
-      path: '/view/:setorId/:coordId',
+      path: '/view/:setorId(\\d+)/:coordId(\\d+)',
       name: 'Coordenadoria',
       component: Coordenadoria,
       props: true

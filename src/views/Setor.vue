@@ -10,7 +10,7 @@
       p(v-if='setor.responsavel') Diretor responsável: {{ setor.responsavel.nome }}
       p(v-if='setor.endereco') Endereço: {{ setor.endereço }}
       p(v-if='setor.telefone') Telefone: {{ setor.telefone }}
-      span(v-if='setor.ramal') (ramal {{ setor.ramal }})
+        span(v-if='setor.ramal') &nbsp;(ramal {{ setor.ramal }})
       b-row.mt-3
         b-col(sm='12' md='8')
           h4.mt-2 Coordenadorias:
@@ -58,6 +58,7 @@ export default {
   },
   apollo: {
     setor: {
+      fetchPolicy: 'network-only',
       query: GET_SETOR,
       variables () {
         return {

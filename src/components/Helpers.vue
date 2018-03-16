@@ -17,7 +17,7 @@ export default {
       if (position !== 'pre') {
         return numero.join(',') + '' + currency
       }
-      return currency + ' ' + numero.join(',')
+      return currency + numero.join(',')
     }
   },
   plural (numericObj, singular, plural) {

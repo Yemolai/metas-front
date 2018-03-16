@@ -124,16 +124,16 @@ export default {
     let status = (percent > 1) ? 'danger' : percent <= 1 ? 'success' : 'warning'
     return `<span class="text-${status}">${money(r) || 'R$ 0,00'}
       <small>/${money(p) || '0,00'}</small>
-      <br/> ${num(percent) || '0'} %`
+      <br/> ${num(percent * 100) || '0'} %`
   },
   prazo (options) {
     let data_descritiva = (_data) => {
       let data = (typeof _data === 'number') ? new Date(Math.abs(_data)) : _data
       if (data instanceof Date) {
         let descricao = []
-        let anos = data.getFullYear()
+        let anos = data.getFullYear() - 1970
         let meses = data.getMonth()
-        let dias = data.getDate()
+        let dias = data.getDate() - 1
         descricao.push((anos > 0) ? anos + ' ano' + (anos === 1 ? '' : 's') : false)
         descricao.push((meses > 0) ? meses + ' ' + (meses === 1 ? 'mês' : 'meses') : false)
         descricao.push((dias > 0) ? (dias + ' dia' + (dias === 1) ? '' : 's') : false)
@@ -144,18 +144,22 @@ export default {
     }
     return (v, k, i) => {
       let { inicio_previsto, fim_previsto, inicio_realizado, fim_realizado } = i
-      console.log('inicio_previsto:', inicio_previsto, 'fim_previsto:', fim_previsto, 'inicio_realizado:', inicio_realizado, 'fim_realizado:', fim_realizado)
+      // console.log('inicio_previsto:', inicio_previsto, 'fim_previsto:', fim_previsto, 'inicio_realizado:', inicio_realizado, 'fim_realizado:', fim_realizado)
       let days = 0
-      let today = new Date()
+      let today = new Date().getTime()
       let ip = !!inicio_previsto
       let fp = !!fim_previsto
       let ir = !!inicio_realizado
       let fr = !!fim_realizado
-      if (ip) {
-        if (fp) {
-          if (ir) {
-            if (fr) { // inicio_previsto, fim_previsto, inicio_realizado, fim_realizado
-              days = (today - (new Date(fim_realizado)))
+      if (ip) { // inicio_previsto
+        if (fp) { // final_previsto
+          if (ir) { // inicio_realizado
+            if (fr) { // fim_realizado
+              let fimRealizado = new Date(fim_realizado)
+              let diff = (today - fimRealizado)
+              if (diff > 0) {
+                return 'concluído há ' + data_descritiva(diff)
+              }
               return `finalizado há ${data_descritiva(days)} (${(new Date(days)).toLocaleDateString()})`
             } else if (!fr) { // inicio_previsto, fim_previsto, inicio_realizado
               days = ((new Date(fim_previsto)) - today)

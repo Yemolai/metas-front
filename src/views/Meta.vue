@@ -4,11 +4,19 @@
       b-col
         h3 M
           small ETA
-          small(v-if='!loading') &nbsp;
+          small(v-if='!loading && setorId') &nbsp;
+            router-link(:to="{name: 'Setor', params: {setorId}}")
+              span {{ meta.coordenadoria.setor.sigla}}/
+            router-link(:to="{name: 'Coordenadoria', params: {setorId, coordId}}")
+              span {{ meta.coordenadoria.sigla}}/
+            span {{ new Date(meta.createdAt).getFullYear()}}/
+            span {{ meta.id }}
+        router-link(v-if='meta.pai' :to="metaPaiRoute")
+          small Submeta de&nbsp;
             span {{ meta.coordenadoria.setor.sigla}}/
             span {{ meta.coordenadoria.sigla}}/
             span {{ new Date(meta.createdAt).getFullYear()}}/
-            span {{ meta.id }}
+            span {{ meta.pai.id }}
       b-col.text-right
         b-dd(variant='outline-secondary' size='sm' right no-caret)
           template(slot='button-content')
@@ -161,6 +169,27 @@ export default {
     }
   },
   computed: {
+    metaPaiRoute: function () {
+      return {
+        name: 'Meta',
+        params: {
+          setor: this.$route.params.setor,
+          coordenadoria: this.$route.params.coordenadoria,
+          meta: this.meta.pai.id
+        }
+      }
+    },
+    coordId: function () {
+      if (this.meta && this.meta.coordenadoria) {
+        return this.meta.coordenadoria.id
+      }
+    },
+    setorId: function () {
+      if (this.meta && this.meta.coordenadoria && this.meta.coordenadoria.setor) {
+        return this.meta.coordenadoria.setor.id
+      }
+      return 0
+    },
     prazo: function () {
       let empty = { field: '', title: '', disabled: true }
       if (!this.meta.id) { // in case of possible failure prevent error
@@ -248,7 +277,14 @@ export default {
     handleModalSubmit: function () {
       let { field, newValue, type } = this.modal
       let metaId = this.meta.id
-      let value = type === 'text' ? '"' + newValue + '"' : newValue
+      let value
+      if (type === 'date') {
+        value = (new Date(newValue + ' 00:00')).getTime()
+      } else if (type === 'number') {
+        value = Number(newValue)
+      } else {
+        value = JSON.stringify(newValue)
+      }
       let vm = this
       this.$apollo.mutate({
         mutation: gql`

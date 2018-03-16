@@ -1,5 +1,5 @@
 <template lang="pug">
-  b-container#painel-de-desempenho
+  b-container(fluid)#painel-de-desempenho
     h3.text-center.mt-4 Painel de desempenho
     hr
     h4(v-if='loading') Carregando...
@@ -138,6 +138,7 @@ export default {
       }
       let valores = this.metas
         .map(m => m.escopo_realizado && m.escopo_previsto ? m.escopo_realizado / m.escopo_previsto : 0)
+        .map(m => m > 1 ? 1 : m)
       let soma = valores
         .reduce((p, a) => (p + a), 0)
       return (soma / this.metas.length) * 100
