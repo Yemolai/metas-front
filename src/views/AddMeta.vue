@@ -215,9 +215,8 @@ export default {
             let err = { error: response.error }
             throw err
           }
-          console.log('response', response)
           vm.$apollo.queries.metas.refetch()
-          this.form = emptyMeta
+          vm.form = emptyMeta
           router.replace({
             name: 'Meta',
             params: {
