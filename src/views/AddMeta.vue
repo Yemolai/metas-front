@@ -210,13 +210,14 @@ export default {
         variables,
         mutation
       })
-        .then(response => {
+        .then(function (response) {
           if (response.error) {
             let err = { error: response.error }
             throw err
           }
           console.log('response', response)
           vm.$apollo.queries.metas.refetch()
+          this.form = emptyMeta
           router.replace({
             name: 'Meta',
             params: {
@@ -246,7 +247,7 @@ export default {
             coordenadorias {
               id
               sigla
-              metas(submetas: true) {
+              metas(submetas: false) {
                 id
                 titulo
               }

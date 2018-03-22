@@ -1,7 +1,7 @@
 <script>
 import gql from 'graphql-tag'
 export default gql`
-  query GET_METAS_SETOR ($setorId: ID!) {
+  query GET_METAS_SETOR ($setorId: ID!, $submetas: Boolean) {
     setor(id: $setorId) {
       id
       sigla
@@ -10,7 +10,7 @@ export default gql`
         id
         sigla
         nome
-        metas {
+        metas(submetas: $submetas) {
           id
           titulo
           resumo

@@ -131,7 +131,10 @@ export default {
         return GET_METAS_SETOR
       },
       variables: function () {
-        return { setorId: (this.form.diretoria === null) ? 0 : this.form.diretoria }
+        return {
+          submetas: false,
+          setorId: (this.form.diretoria === null) ? 0 : this.form.diretoria
+        }
       }
     }
   }

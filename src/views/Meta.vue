@@ -13,9 +13,9 @@
             span {{ meta.id }}
         router-link(v-if='meta.pai' :to="metaPaiRoute")
           small Submeta de&nbsp;
-            span {{ meta.coordenadoria.setor.sigla}}/
-            span {{ meta.coordenadoria.sigla}}/
-            span {{ new Date(meta.createdAt).getFullYear()}}/
+            span {{ meta.coordenadoria.setor.sigla }}/
+            span {{ meta.coordenadoria.sigla }}/
+            span {{ new Date(meta.createdAt).getFullYear() }}/
             span {{ meta.pai.id }}
       b-col.text-right
         b-dd(variant='outline-secondary' size='sm' right no-caret)
@@ -32,7 +32,7 @@
     div(v-else)#meta-details
       b-card(
         :title='meta.titulo'
-      ).mb-2
+      ).mb-5
         p.card-text
           b-row
             b-col(md='4' sm='12').editable Responsável:&nbsp;
@@ -90,21 +90,62 @@
               b-dd(variant='outline-primary' size='sm' text='Atualizar custo').edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
+      div(v-if='!loading && meta.submetas.length > 0')
+        b-row
+          b-col
+            h4 Submetas
+        b-row.mb-5
+          b-col
+            b-collapse(v-model="collapse.submetas")#collapse-submetas
+              b-table(
+                striped
+                small
+                sort-by='id'
+                :items='meta.submetas'
+                :fields='fields.submetas'
+                @row-clicked='navigateToSubmeta'
+              )
+            b-btn(
+              block
+              size="sm"
+              variant="outline-secondary"
+              aria-controls="collapse-submetas"
+              :title="collapse.submetas ? 'Ocultar tabela' : 'Exibir tabela'"
+              :class="collapse.submetas ? 'collapsed' : null"
+              :aria-expanded="collapse.submetas ? 'true' : 'false'"
+              @click="collapse.submetas = !collapse.submetas"
+            )
+              span(v-if="collapse.submetas").fa.fa-chevron-up
+              span(v-else).fa.fa-chevron-down
       b-row
         b-col
           h4 Atualizações
-      b-table(
-        style='font-size="80%"'
-        striped
-        small
-        :sort-desc='true'
-        :items='meta.atualizacoes'
-        :fields='fields'
-        sort-by='id'
-      )
-        template(slot='apagar' slot-scope='row')
-          b-btn(size='sm' variant='outline-secondary' @click.stop='delUpdate(row.item.id)').ml-2
-            span.fa.fa-trash
+      b-row.mb-5
+        b-col
+          b-collapse(v-model="collapse.atualizacoes")#collapse-atualizacoes
+            b-table(
+              striped
+              small
+              :sort-desc='true'
+              :items='meta.atualizacoes'
+              :fields='fields.atualizacoes'
+              sort-by='id'
+            )
+              template(slot='apagar' slot-scope='row')
+                b-btn(size='sm' variant='outline-secondary' @click.stop='delUpdate(row.item.id)').ml-2
+                  span.fa.fa-trash
+          b-btn(
+            block
+            size="sm"
+            variant="outline-secondary"
+            aria-controls="collapse-atualizacoes"
+            :title="collapse.atualizacoes ? 'Ocultar tabela' : 'Exibir tabela'"
+            :class="collapse.atualizacoes ? 'collapsed' : null"
+            :aria-expanded="collapse.atualizacoes ? 'true' : 'false'"
+            @click="collapse.atualizacoes = !collapse.atualizacoes"
+          )
+            span(v-if="collapse.atualizacoes").fa.fa-chevron-up
+            span(v-else).fa.fa-chevron-down
     b-modal(
       size='lg'
       ref='updateModal'
@@ -131,11 +172,19 @@
               :type="modal.type"
               placeholder='Não deixe este campo vazio'
               v-model='modal.newValue'
+              required
+            )
+            b-form-input(
+              type='text'
+              placeholder='Descreva o motivo da atualização'
+              v-model='modal.reason'
+              required
             )
 
 </template>
 <script>
 import gql from 'graphql-tag'
+import router from '@/router'
 import GET_META from '@/constants/get-meta'
 import DELETE_META from '@/constants/delete-meta'
 import Helpers from '@/components/Helpers'
@@ -158,14 +207,34 @@ const tableFields = [
   {key: 'custo_realizado', label: 'Custo efetivo', formatter: dinheiro()},
   'apagar'
 ]
+const subFields = [
+  {key: 'id', label: '#', formatter: (v, k, i) => v},
+  {key: 'titulo', label: 'Título', formatter: (v, k, i) => v},
+  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome}
+]
 export default {
   name: 'Meta',
   data () {
     return {
       loading: 0,
-      fields: tableFields,
+      fields: {
+        atualizacoes: tableFields,
+        submetas: subFields
+      },
+      collapse: {
+        atualizacoes: false,
+        submetas: false
+      },
       meta: {},
-      modal: { title: '', field: null, oldValue: null, newValue: null, type: null, formatter: v => v }
+      modal: {
+        title: '',
+        field: null,
+        reason: null,
+        oldValue: null,
+        newValue: null,
+        type: null,
+        formatter: v => v
+      }
     }
   },
   computed: {
@@ -216,6 +285,18 @@ export default {
     }
   },
   methods: {
+    navigateToSubmeta: function (row) {
+      router.push({
+        name: 'Meta',
+        params: {
+          setor: this.meta.coordenadoria.setor.sigla,
+          coordenadoria: this.meta.coordenadoria.sigla,
+          year: (new Date()).getFullYear(),
+          meta: row.id
+        }
+      })
+    },
+    toggle: function (v) { v = !v },
     delUpdate: function (itemId) {
       if (!itemId || itemId < 1) {
         return null
@@ -266,16 +347,23 @@ export default {
         this.$refs.updateModal.show()
       }
     },
-    handleModalOk: function (e) {
+    handleModalOk: function (e) { // error checking before processing
       e.preventDefault()
-      if (!this.modal.newValue || this.modal.newValue === this.modal.oldValue) {
-        alert('Atualização indiferente ou vazia')
+      let newValueIsEmpty = !this.modal.newValue
+      let newValueIsEqual = this.modal.newValue === this.modal.oldValue
+      let reasonIsEmpty = !this.modal.reason
+      if (newValueIsEmpty) {
+        alert('Novo "' + this.modal.title + '" não pode ser vazio e/ou nulo.')
+      } else if (newValueIsEqual) {
+        alert('Novo "' + this.modal.title + '" deve ser diferente do anterior.')
+      } else if (reasonIsEmpty) {
+        alert('Deve existir motivo para alteração de "' + this.modal.title + '"')
       } else {
         this.handleModalSubmit()
       }
     },
     handleModalSubmit: function () {
-      let { field, newValue, type } = this.modal
+      let { field, newValue, type, reason } = this.modal
       let metaId = this.meta.id
       let value
       if (type === 'date') {
@@ -289,7 +377,10 @@ export default {
       this.$apollo.mutate({
         mutation: gql`
           mutation INSERT_ATUALIZACAO {
-            addAtualizacao(meta: ${metaId}, ${field}: ${value}) {
+            addAtualizacao(
+              meta: ${metaId},
+              motivo: "${reason}",
+              ${field}: ${value}) {
               id
             }
           }
@@ -300,7 +391,14 @@ export default {
             throw response
           }
           vm.$apollo.queries.meta.refetch({ metaId: this.$route.params.meta })
-          vm.modal = { title: '', field: null, oldValue: null, newValue: null, type: null, formatter: v => v }
+          vm.modal = {
+            title: '',
+            field: null,
+            oldValue: null,
+            newValue: null,
+            type: null,
+            formatter: v => v
+          }
           vm.$refs.updateModal.hide()
         })
         .catch(response => {

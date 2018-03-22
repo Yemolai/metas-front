@@ -1,25 +1,31 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/views/Home'
-import ListaDiretorias from '@/views/Diretorias'
-import Painel from '@/views/Painel'
-import PainelResultados from '@/views/Resultados'
-import PainelDesempenho from '@/views/Desempenho'
-import Meta from '@/views/Meta'
-import Setor from '@/views/Setor'
-import Coordenadoria from '@/views/Coordenadoria'
-import AddSetor from '@/views/AddSetor'
 import AddCoordenadoria from '@/views/AddCoordenadoria'
 import AddMeta from '@/views/AddMeta'
+import AddSetor from '@/views/AddSetor'
+import Coordenadoria from '@/views/Coordenadoria'
+import Home from '@/views/Home'
+import ListaDiretorias from '@/views/Diretorias'
+import Login from '@/views/Login'
+import Meta from '@/views/Meta'
+import Painel from '@/views/Painel'
+import PainelDesempenho from '@/views/Desempenho'
+import PainelResultados from '@/views/Resultados'
+import Setor from '@/views/Setor'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
     },
     {
       path: '/diretorias',
@@ -78,3 +84,12 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach(function (to, from, next) {
+  switch (to) {
+    default:
+      return next()
+  }
+})
+
+export default router

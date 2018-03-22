@@ -127,13 +127,16 @@ export default {
       variables.setorId = this.setorId
       let mutation = INSERT_COORDENADORIA
       return this.$apollo.mutate({ mutation, variables })
-        .then(response => router.replace({
-          name: 'Coordenadoria',
-          params: {
-            setorId: variables.setorId,
-            coordId: response.data.addCoordenadoria.id
-          }
-        }))
+        .then(function (response) {
+          this.form = emptyForm
+          return router.replace({
+            name: 'Coordenadoria',
+            params: {
+              setorId: variables.setorId,
+              coordId: response.data.addCoordenadoria.id
+            }
+          })
+        })
     }
   },
   apollo: { usuarios: { query: GET_USUARIOS } }

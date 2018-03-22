@@ -107,10 +107,14 @@ export default {
       const mutation = INSERT_SETOR
       const variables = this.form
       this.$apollo.mutate({ mutation, variables })
-        .then(response => router.replace({
-          name: 'Setor',
-          params: { setorId: response.data.addSetor.id }
-        }))
+        .then(response => function () {
+          this.form = emptySetor
+          this.$apollo.queries.usuarios.refetch()
+          router.replace({
+            name: 'Setor',
+            params: { setorId: response.data.addSetor.id }
+          })
+        })
     }
   },
   computed: {
