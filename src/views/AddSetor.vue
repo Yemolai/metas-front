@@ -100,17 +100,30 @@ const emptySetor = {
 }
 export default {
   methods: {
-    back: () => router.go(-1),
-    clearForm: function () { this.form = emptySetor },
+    back: () => {
+      return router.replace({ name: 'Diretorias' })
+    },
+    clearForm: function () {
+      this.form = {
+        sigla: '',
+        nome: '',
+        endereco: '',
+        telefone: '',
+        ramal: '',
+        responsavel: ''
+      }
+    },
     saveNew: function (e) {
       e.preventDefault()
       const mutation = INSERT_SETOR
       const variables = this.form
+      let vm = this
       this.$apollo.mutate({ mutation, variables })
-        .then(response => function () {
-          this.form = emptySetor
-          this.$apollo.queries.usuarios.refetch()
-          router.replace({
+        .then(response => {
+          vm.form = emptySetor
+          vm.$apollo.queries.usuarios.refetch()
+          vm.clearForm()
+          return router.replace({
             name: 'Setor',
             params: { setorId: response.data.addSetor.id }
           })
@@ -133,6 +146,9 @@ export default {
       usuarios: [],
       form: emptySetor
     }
+  },
+  mounted () {
+    Object.assign(this.form, emptySetor)
   },
   apollo: {
     usuarios: {
