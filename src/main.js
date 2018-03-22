@@ -10,6 +10,8 @@ import cfg from '@/cfg.json'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'font-awesome/css/font-awesome.min.css'
+import '@/cosmo.min.css'
 
 import App from './App'
 import router from './router'

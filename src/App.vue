@@ -52,8 +52,6 @@ export default {
 </script>
 
 <style>
-@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css);
-@import url(https://bootswatch.com/4/cosmo/bootstrap.min.css);
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
