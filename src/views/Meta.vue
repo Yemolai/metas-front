@@ -90,7 +90,7 @@
               b-dd(variant='outline-primary' size='sm' text='Atualizar custo').edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
-      div(v-if='!loading && meta.submetas.length > 0')
+      div(v-if='!loading && meta.submetas && meta.submetas.length > 0')
         b-row
           b-col
             h4 Submetas
