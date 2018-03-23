@@ -37,11 +37,12 @@
               b-col
                 b-check(plain v-model="form.rememberMe").mb-2
                   small Lembrar de mim
-              b-col.ml-0.text-right
-                router-link(:to="{ name: 'ForgotPassword' }")
-                  small Esqueceu a senha?
+              //- b-col.ml-0.text-right
+              //-   router-link(:to="{ name: 'ForgotPassword' }")
+              //-     small Esqueceu a senha?
             b-btn(
               block
+              disabled
               variant="outline-primary"
               type="submit"
             )#submit-form Entrar
@@ -59,7 +60,7 @@ export default {
   },
   methods: {
     submitForm: function () {
-      //
+      alert('Dados incorretos')
     },
     resetForm: function () {
       //
