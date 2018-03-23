@@ -53,7 +53,7 @@ export default {
         .then(function (response) {
           // refetch usuarios in Apollo GQL Store
           alert('Usuario ' + nome + ' registrado.')
-          return router.replace('/')
+          return router.replace({name: 'Home'})
         })
     },
     resetForm: function () {
