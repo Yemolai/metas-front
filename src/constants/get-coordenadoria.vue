@@ -17,7 +17,7 @@ export default gql`
         id
         nome
       }
-      metas {
+      metas(submetas: false) {
         id
         titulo
         responsavel {
