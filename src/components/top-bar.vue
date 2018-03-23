@@ -61,7 +61,7 @@
             b-dropdown-item(href="#" @click="go('Coordenadoria')")
               span Coordenadoria
             b-dropdown-item(href="#") Sair
-          b-nav-item(href="#" :to="'Login'")
+          b-nav-item(href="#" :to="{name:'Login'}")
             span E
               small NTRAR
 </template>
