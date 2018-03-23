@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import AddCoordenadoria from '@/views/AddCoordenadoria'
 import AddMeta from '@/views/AddMeta'
 import AddSetor from '@/views/AddSetor'
+import AddUser from '@/views/AddUser'
 import Coordenadoria from '@/views/Coordenadoria'
 import Home from '@/views/Home'
 import ListaDiretorias from '@/views/Diretorias'
@@ -36,8 +37,11 @@ const router = new Router({
       path: '/painel/',
       name: 'Painel',
       component: Painel
-    },
-    {
+    }, {
+      path: '/user/add',
+      name: 'AddUser',
+      component: AddUser
+    }, {
       // path: '/painel/:setor(\\w+)?/:page(\\d+)?',
       path: '/painel/resultados/:setor?',
       name: 'PainelResultados',
@@ -72,12 +76,12 @@ const router = new Router({
       component: AddSetor,
       props: true
     }, {
-      path: '/add/:setorId',
+      path: '/:setorId(\\d+)/add',
       name: 'AddCoordenadoria',
       component: AddCoordenadoria,
       props: true
     }, {
-      path: '/:setor/:coordenadoria/add',
+      path: '/:setor(\\w+)/:coordenadoria(\\w+)/add',
       name: 'AddMeta',
       component: AddMeta,
       props: true
@@ -86,6 +90,9 @@ const router = new Router({
 })
 
 router.beforeEach(function (to, from, next) {
+  // Utilizar este método para definir quais rotas são privadas
+  // console.log('to:', to)
+  // console.log('from:', from)
   switch (to) {
     default:
       return next()

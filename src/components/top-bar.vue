@@ -27,7 +27,7 @@
             span.fa.fa-lg.fa-plus &nbsp;
             span M
             small ETA
-          b-nav-item.mx-2(href="#" @click="go('AddUser')")
+          b-nav-item.mx-2(href="#" :to="{name:'AddUser'}")
             span.fa.fa-lg.fa-plus &nbsp;
             span U
               small SUARIO
@@ -61,7 +61,7 @@
             b-dropdown-item(href="#" @click="go('Coordenadoria')")
               span Coordenadoria
             b-dropdown-item(href="#") Sair
-          b-nav-item(href="#" @click="go('Login')")
+          b-nav-item(href="#" :to="'Login'")
             span E
               small NTRAR
 </template>
@@ -87,7 +87,8 @@ export default {
     }
   },
   data () {
-    console.log('usuario:', this.usuario)
+    // exibir usuario na top-bar por aqui
+    // console.log('usuario:', this.usuario)
     return {
       usr: {
         id: 1,

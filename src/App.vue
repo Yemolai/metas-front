@@ -43,9 +43,20 @@ export default {
             Authorization: 'Bearer ' + token
           }
         })
-        .then(response => console.log('response:', response))
-        .catch(error => console.error('error:', error))
-        .then()
+        .then(response => { console.log('response:', response); return response })
+        .catch(error => { console.error('error:', error); return false })
+        .then(function (res) {
+          if (res) {
+            return {
+              query: GET_USUARIO,
+              variables: { userId: res }
+            }
+          }
+          return {
+            query: GET_USUARIO,
+            variables: { userId: 0 }
+          }
+        })
     }
   }
 }
