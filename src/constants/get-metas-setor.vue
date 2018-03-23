@@ -24,6 +24,9 @@ export default gql`
           fim_realizado
           custo_previsto
           custo_realizado
+          responsavel {
+            nome
+          }
           coordenadoria {
             id
             sigla
