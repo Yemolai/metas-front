@@ -13,7 +13,7 @@
           )#form-group-titulo
             b-form-input(
               type='text'
-              v-model='form.titulo'
+              v-model='titulo'
               required
               placeholder='Realizar um passo de uma caminhada'
             )#form-input-titulo
@@ -26,7 +26,7 @@
           )#form-group-escopo-previsto
             b-form-input(
               type='number'
-              v-model='form.escopo_previsto'
+              v-model='escopo_previsto'
               required
               min='0'
               step='0.01'
@@ -40,7 +40,7 @@
           )
             b-form-input(
               type='date'
-              v-model='form.inicio_previsto'
+              v-model='inicio_previsto'
               required
             )#form-input-inicio-previsto
         b-col(sm='12' md='3')
@@ -51,7 +51,7 @@
           )
             b-form-input(
               type='date'
-              v-model='form.fim_previsto'
+              v-model='fim_previsto'
               required
             )#form-input-fim-previsto
         b-col(sm='12' md='3')
@@ -62,7 +62,7 @@
           )
             b-form-input(
               type='number'
-              v-model='form.custo_previsto'
+              v-model='custo_previsto'
               required
               min='0'
               step='0.01'
@@ -77,7 +77,7 @@
           )
             b-select(
               :options='listaUsuarios'
-              v-model='form.responsavel'
+              v-model='responsavel'
               value-field='id'
             )#form-input-responsavel
         b-col(sm='12' md='6')
@@ -88,7 +88,7 @@
           )
             b-select(
               :options='listaMetas'
-              v-model='form.pai'
+              v-model='pai'
               value-field='id'
             )
       b-row
@@ -112,16 +112,6 @@ import router from '@/router'
 import INSERT_META from '@/constants/insert-meta'
 import GET_USUARIOS from '@/constants/get-usuarios'
 import GET_SETORES from '@/constants/get-setores'
-const emptyMeta = {
-  titulo: '',
-  escopo_previsto: null,
-  inicio_previsto: null,
-  fim_previsto: null,
-  custo_previsto: null,
-  pai: null,
-  responsavel: null,
-  autor: null
-}
 export default {
   name: 'AddMeta',
   data () {
@@ -129,7 +119,14 @@ export default {
       loading: 0,
       usuarios: [],
       metas: [],
-      form: emptyMeta
+      titulo: '',
+      escopo_previsto: null,
+      inicio_previsto: null,
+      fim_previsto: null,
+      custo_previsto: null,
+      pai: null,
+      responsavel: null,
+      autor: null
     }
   },
   computed: {
@@ -185,23 +182,30 @@ export default {
       e.preventDefault()
       router.go(-1)
     },
-    reset: function (e) {
-      this.form = emptyMeta
+    reset: function () {
+      this.titulo = ''
+      this.escopo_previsto = null
+      this.inicio_previsto = null
+      this.fim_previsto = null
+      this.custo_previsto = null
+      this.pai = null
+      this.responsavel = null
+      this.autor = null
     },
     submit: function (e) {
       e.preventDefault()
       // ISSO AQUI DEVE SER ALTERADO AO IMPLEMENTAR AUTENTICAÇÃO
-      this.form.autor = 1
+      this.autor = 1
       let variables = {
-        titulo: this.form.titulo,
-        escopo_previsto: Number(this.form.escopo_previsto),
-        inicio_previsto: new Date(this.form.inicio_previsto + ' 00:00'),
-        fim_previsto: new Date(this.form.fim_previsto + ' 00:00'),
-        custo_previsto: Number(this.form.custo_previsto),
+        titulo: this.titulo,
+        escopo_previsto: Number(this.escopo_previsto),
+        inicio_previsto: new Date(this.inicio_previsto + ' 00:00'),
+        fim_previsto: new Date(this.fim_previsto + ' 00:00'),
+        custo_previsto: Number(this.custo_previsto),
         coordenadoria: Number(this.coordenadoria.id),
-        responsavel: Number(this.form.responsavel) || null,
-        pai: Number(this.form.pai) || null,
-        autor: Number(this.form.autor) || null
+        responsavel: Number(this.responsavel) || null,
+        pai: Number(this.pai) || null,
+        autor: Number(this.autor) || null
       }
       console.log('variables', variables)
       let mutation = INSERT_META
@@ -216,7 +220,7 @@ export default {
             throw err
           }
           vm.$apollo.queries.metas.refetch()
-          vm.form = emptyMeta
+          vm.reset()
           router.replace({
             name: 'Meta',
             params: {

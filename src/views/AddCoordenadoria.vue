@@ -15,7 +15,7 @@
             b-form-input(
               required
               type='text'
-              v-model='form.sigla'
+              v-model='sigla'
               placeholder='CLPP'
             )#form-input-sigla
         b-col(md='9' sm='12')
@@ -27,7 +27,7 @@
             b-form-input(
               required
               type='text'
-              v-model='form.nome'
+              v-model='nome'
               placeholder='Coordenadoria de limpeza e polimento de panelas'
             )#form-input-nome
       //- linha 2
@@ -40,7 +40,7 @@
           )#form-group-endereco
             b-form-input(
               type='text'
-              v-model='form.endereco'
+              v-model='endereco'
               placeholder='Tv. Chaco, 2158, Altos, sala 15, Marco, Belém'
             )#form-input-endereco
         b-col(md='4' sm='12')
@@ -51,7 +51,7 @@
           )#form-group-telefone
             b-form-input(
               type='text'
-              v-model='form.telefone'
+              v-model='telefone'
               placeholder='(91) 3183-0020'
             )#form-input-telefone
         b-col(md='2' sm='12')
@@ -62,7 +62,7 @@
           )#form-group-ramal
             b-form-input(
               type='text'
-              v-model='form.ramal'
+              v-model='ramal'
               placeholder='0020'
             )#form-input-ramal
       b-row
@@ -74,7 +74,7 @@
           )
             //- TODO: Trocar esse select por uma pesquisa de texto com autocomplete
             b-form-select(
-              v-model='form.responsavelId'
+              v-model='responsavelId'
               :options='listaUsuarios'
               value-field='id'
               required
@@ -89,22 +89,18 @@
 import INSERT_COORDENADORIA from '@/constants/insert-coordenadoria'
 import GET_USUARIOS from '@/constants/get-usuarios'
 import router from '@/router'
-const emptyForm = {
-  sigla: null,
-  nome: null,
-  endereco: null,
-  telefone: null,
-  ramal: null,
-  setorId: null,
-  responsavelId: null
-}
 export default {
   name: 'AddCoordenadoria',
   data () {
     return {
       loading: 0,
       usuarios: [],
-      form: emptyForm,
+      sigla: null,
+      nome: null,
+      endereco: null,
+      telefone: null,
+      ramal: null,
+      responsavelId: null,
       setorId: this.$route.params.setorId
     }
   },
@@ -120,18 +116,30 @@ export default {
   },
   methods: {
     back: e => router.go(-1),
-    reset: function () { this.form = emptyForm },
+    reset: function () {
+      console.log('siblings:', this.$parent.$children)
+      this.sigla = null
+      this.nome = null
+      this.endereco = null
+      this.telefone = null
+      this.ramal = null
+      this.responsavelId = null
+    },
     submit: function (e) {
       e.preventDefault()
-      let variables = this.form
-      variables.setorId = this.setorId
-      let mutation = INSERT_COORDENADORIA
-      return this.$apollo.mutate({ mutation, variables })
+      let vm = this
+      let { sigla, nome, endereco, telefone, ramal, responsavelId } = this
+      let setorId = this.setorId
+      return this.$apollo.mutate({
+        mutation: INSERT_COORDENADORIA,
+        variables: { sigla, nome, endereco, telefone, ramal, responsavelId, setorId }
+      })
         .then(function (response) {
+          vm.reset()
           return router.replace({
             name: 'Coordenadoria',
             params: {
-              setorId: variables.setorId,
+              setorId: setorId,
               coordId: response.data.addCoordenadoria.id
             }
           })
