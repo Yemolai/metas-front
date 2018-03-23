@@ -128,7 +128,6 @@ export default {
       let mutation = INSERT_COORDENADORIA
       return this.$apollo.mutate({ mutation, variables })
         .then(function (response) {
-          this.form = emptyForm
           return router.replace({
             name: 'Coordenadoria',
             params: {
