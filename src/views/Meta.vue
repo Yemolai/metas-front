@@ -30,15 +30,19 @@
             span Apagar
     h4(v-if='loading') Carregando...
     div(v-else)#meta-details
-      b-card(
-        :title='meta.titulo'
-      ).mb-5
+      b-card.mb-5
+        b-row.mb-2
+          b-col(cols='12').editable
+            h4.card-title(style="margin-bottom: 0") {{ meta.titulo }}
+            b-btn(variant='outline-primary' size='sm' @click="update('titulo')").edit-btn
+              span Atualizar título
         p.card-text
           b-row
             b-col(md='4' sm='12').editable Responsável:&nbsp;
               span(v-if='meta.responsavel') {{ meta.responsavel.nome }}
               small(v-else).text-warning [indefinido]
-              b-btn(variant='outline-primary' size='sm').edit-btn Atualizar
+              //- b-btn(variant='outline-primary' size='sm' @click="update('responsavel')").edit-btn
+                span Atualizar
             b-col(md='4' sm='12').editable Última ação:&nbsp;
               span(v-if='meta.resumo') {{ meta.resumo }}
               span(v-else  style='color:rgba(0,0,0,0.5)') [indefinido]
@@ -167,19 +171,30 @@
           span &rArr;
         b-col
           form(@submit.stop.prevent='handleModalSubmit')
+            b-select(
+              v-if="modal.select"
+              :options="modal.select"
+              :value-field="modal.value"
+              :text-field="modal.text"
+              v-model="modal.newValue"
+            )
+                template(slot="first")
+                  option(:value="null" disabled) {{ modal.nullOption }}
             b-form-input(
-              v-if="modal.type !== 'textarea'"
+              v-if="modal.type !== 'textarea' && !modal.select"
               :type="modal.type"
               placeholder='Não deixe este campo vazio'
               v-model='modal.newValue'
               required
             )
-            b-form-input(
-              type='text'
-              placeholder='Descreva o motivo da atualização'
-              v-model='modal.reason'
-              required
-            )
+      b-row
+        b-col
+          b-form-input(
+            type='text'
+            placeholder='Descreva o motivo da atualização'
+            v-model='modal.reason'
+            required
+          )
 
 </template>
 <script>
@@ -187,6 +202,7 @@ import gql from 'graphql-tag'
 import router from '@/router'
 import GET_META from '@/constants/get-meta'
 import DELETE_META from '@/constants/delete-meta'
+import GET_USUARIOS from '@/constants/get-usuarios'
 import Helpers from '@/components/Helpers'
 import Formatters from '@/components/Formatters'
 const { numero, data, dinheiro } = Helpers
@@ -225,6 +241,7 @@ export default {
         atualizacoes: false,
         submetas: false
       },
+      usuarios: [],
       meta: {},
       modal: {
         title: '',
@@ -321,6 +338,7 @@ export default {
     },
     update: function (field) {
       let fields = {
+        'titulo': {title: 'Nome/Título/Objeto da meta'},
         'resumo': {title: 'Última ação'},
         'estado': {title: 'Situação'},
         'escopo_realizado': {title: 'Escopo realizado', type: 'number', formatter: numero()},
@@ -330,20 +348,32 @@ export default {
         'fim_previsto': {title: 'Fim previsto', type: 'date', formatter: data()},
         'fim_realizado': {title: 'Fim realizado', type: 'date', formatter: data()},
         'custo_previsto': {title: 'Custo previsto', type: 'number', formatter: dinheiro()},
-        'custo_realizado': {title: 'Custo realizado', type: 'number', formatter: dinheiro()}
+        'custo_realizado': {title: 'Custo realizado', type: 'number', formatter: dinheiro()},
+        'responsavel': {
+          title: 'Responsável',
+          type: 'number',
+          select: this.usuarios,
+          value: 'id',
+          text: 'nome',
+          nullOption: 'Escolha um usuário',
+          formatter: v => { console.log(v); return v ? v.nome : '' }
+        }
       }
       if (!fields[field]) {
         alert('Campo desconhecido')
       } else {
         let f = fields[field]
+        console.log('field', field, f)
         this.modal = {
           field,
           type: f.type || 'text',
           title: f.title,
           formatter: f.formatter || (v => v),
-          newValue: this.meta[field],
-          oldValue: this.meta[field]
+          newValue: f.select ? f.select[f.value] : this.meta[field],
+          oldValue: f.select ? f.select[f.value] : this.meta[field],
+          select: f.select || false
         }
+        console.log('modal', this.modal)
         this.$refs.updateModal.show()
       }
     },
@@ -413,6 +443,9 @@ export default {
     deadline
   },
   apollo: {
+    usuarios: {
+      query: GET_USUARIOS
+    },
     meta: {
       query: GET_META,
       fetchPolicy: 'network-only',
