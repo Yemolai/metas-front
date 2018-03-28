@@ -48,9 +48,10 @@
               span(v-else  style='color:rgba(0,0,0,0.5)') [indefinido]
               b-btn(variant='outline-primary' size='sm' @click="update('resumo')").edit-btn
                 span Atualizar ação
-            b-col(md='4' sm='12').text-right Última atualização:&nbsp;
-              span(v-if='meta.atualizado') {{ date(meta.atualizado) }}
-              span(v-else) {{ date(meta.createdAt) }} (criação)
+            b-col(md='4' sm='12').text-right
+              span(v-if='meta.atualizado') Atualizado: {{ date(meta.atualizado) }}
+                br
+              span Criado: {{ date(meta.createdAt) }}
           b-row.mb-2.mt-4
             b-col(cols='12').editable Situação da meta:&nbsp;
               span(v-if='meta.estado') {{ meta.estado }}
