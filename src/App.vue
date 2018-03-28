@@ -18,45 +18,43 @@ export default {
     footerComponent
   },
   data () {
+    let token = window.localStorage.getItem('token')
+    // console.log('token:', token)
     return {
       loading: 0,
       permissoes: [],
+      usuarioId: 0,
       usuario: {},
-      token: null
+      token
+    }
+  },
+  watch: {
+    token: function () {
+      if (this.token === null) {
+        return false
+      }
+      let vm = this
+      axios.get('http://localhost:7700/user/', { headers: { Authorization: 'Bearer ' + this.token } })
+        .then(response => {
+          if (response.data) {
+            console.log('data', response.data)
+            vm.usuarioId = response.data
+          } else {
+            vm.usuarioId = 0
+            console.log('response:', response)
+          }
+        })
     }
   },
   apollo: {
     permissoes: {
       query: GET_ALL_PERMISSOES
     },
-    usuario () {
-      let token = window.localStorage.getItem('token')
-      if (token === null) {
-        return {
-          query: GET_USUARIO,
-          variables: { userId: 0 }
-        }
+    usuario: {
+      query: GET_USUARIO,
+      variables: { // TODO: mudar aqui para um watch e apenas fazer refetch
+        userId: this.usuarioId || 0
       }
-      return axios
-        .get('http://localhost:7700/user/', {
-          headers: {
-            Authorization: 'Bearer ' + token
-          }
-        })
-        .then(response => { console.log('response:', response); return response })
-        .catch(error => { console.error('error:', error); return false })
-        .then(function (res) {
-          if (res) {
-            return {
-              query: GET_USUARIO,
-              variables: { userId: res }
-            }
-          }
-          return {
-            query: GET_USUARIO,
-            variables: { userId: 0 }
-          }
-        })
     }
   }
 }
