@@ -47,6 +47,7 @@
             )#submit-form Entrar
 </template>
 <script>
+/* eslint-disable */
 import axios from 'axios'
 export default {
   data () {
@@ -58,6 +59,8 @@ export default {
   },
   methods: {
     submitForm: function () {
+      alert('work in progress')
+      return false
       let { username, password } = this
       if (username && password) {
         axios.post('http://localhost:7700/auth/login',
