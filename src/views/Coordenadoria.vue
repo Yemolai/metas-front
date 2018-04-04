@@ -73,7 +73,7 @@ export default {
     }
   },
   data () {
-    let money = v => Helpers.dinheiro()(v) || 'R$ 0,00'
+    let money = v => Helpers.dinheiro()(v) || 'R$0,00'
     return {
       loading: 0,
       coordenadoria: {},
@@ -81,7 +81,10 @@ export default {
         'titulo',
         { key: 'responsavel', formatter: v => v ? v.nome : '' },
         { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
-        { key: 'custo', formatter: (v, k, i) => `${money(i.custo_realizado)}/${money(i.custo_previsto)}` },
+        { key: 'custo', formatter: (v, k, i) => `
+          ${money(i.custo_realizado)}&nbsp;
+          <small>/${money(i.custo_previsto)}</small>`
+        },
         { key: 'prazo', formatter: Formatters.prazo() }
       ],
       user: { permissoes: { coord_create: true } }
