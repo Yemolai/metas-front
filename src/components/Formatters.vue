@@ -160,10 +160,10 @@ export default {
               if (diff > 0) {
                 return 'concluído há ' + data_descritiva(diff)
               }
-              return `finalizado há ${data_descritiva(days)} (${(new Date(days)).toLocaleDateString()})`
+              return `finalizado há ${data_descritiva(days)} (${(new Date(fim_realizado)).toLocaleDateString()})`
             } else if (!fr) { // inicio_previsto, fim_previsto, inicio_realizado
               days = ((new Date(fim_previsto)) - today)
-              return data_descritiva(days) + ' (' + (new Date(days)).toLocaleDateString() + ')'
+              return data_descritiva(days) + ' (' + (new Date(fim_previsto)).toLocaleDateString() + ')'
             }
           } else if (!ir) {
             if (fr) { // inicio_previsto, fim_previsto, fim_realizado
