@@ -40,6 +40,7 @@
 <script>
 import router from '@/router'
 import Formatters from '@/components/Formatters'
+import Helpers from '@/components/Helpers'
 import GET_COORDENADORIA from '@/constants/get-coordenadoria'
 export default {
   name: 'Coordenadoria',
@@ -72,6 +73,7 @@ export default {
     }
   },
   data () {
+    let money = v => Helpers.dinheiro()(v) || 'R$ 0,00'
     return {
       loading: 0,
       coordenadoria: {},
@@ -79,7 +81,7 @@ export default {
         'titulo',
         { key: 'responsavel', formatter: v => v ? v.nome : '' },
         { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
-        { key: 'custo', formatter: (v, k, i) => `R$ ${i.custo_realizado || 0}/${i.custo_previsto || 0}` },
+        { key: 'custo', formatter: (v, k, i) => `${money(i.custo_realizado)}/${money(i.custo_previsto)}` },
         { key: 'prazo', formatter: Formatters.prazo() }
       ],
       user: { permissoes: { coord_create: true } }
