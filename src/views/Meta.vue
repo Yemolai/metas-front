@@ -131,6 +131,7 @@
             b-table(
               striped
               small
+              stacked='md'
               :sort-desc='true'
               :items='meta.atualizacoes'
               :fields='fields.atualizacoes'
@@ -147,8 +148,7 @@
             :title="collapse.atualizacoes ? 'Ocultar tabela' : 'Exibir tabela'"
             :class="collapse.atualizacoes ? 'collapsed' : null"
             :aria-expanded="collapse.atualizacoes ? 'true' : 'false'"
-            @click="collapse.atualizacoes = !collapse.atualizacoes"
-          )
+            @click="collapse.atualizacoes = !collapse.atualizacoes")
             span(v-if="collapse.atualizacoes").fa.fa-chevron-up
             span(v-else).fa.fa-chevron-down
     b-modal(
@@ -157,9 +157,8 @@
       ok-title='Atualizar'
       cancel-title='Cancelar'
       @ok='handleModalOk'
-      hide-header-close
-      no-close-on-backdrop
-    )
+      :hide-header-close='true'
+      :no-close-on-backdrop='true')
       template(slot='modal-header')
         span Atualizar&nbsp;
           span(style='font-weight: 800') {{ this.modal.title }}
