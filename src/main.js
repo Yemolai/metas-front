@@ -6,17 +6,21 @@ import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import VueApollo from 'vue-apollo'
+import VueMoment from 'vue-moment'
+import moment from 'moment'
+
 import cfg from '@/cfg.json'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '@/cosmo.min.css'
+import 'moment/locale/pt-br'
 
 import App from './App'
 import router from './router'
 
 const httpLink = new HttpLink({
-  uri: cfg.graphqlEndpoint
+  uri: cfg.server + cfg.graphqlEndpoint
 })
 
 // Create the apollo client
@@ -36,6 +40,8 @@ const apolloProvider = new VueApollo({
 Vue.use(VueApollo)
 
 Vue.use(BootstrapVue)
+
+Vue.use(VueMoment, { moment })
 
 Vue.config.productionTip = false
 

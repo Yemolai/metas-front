@@ -1,5 +1,7 @@
 <script>
 import Helpers from '@/components/Helpers'
+import moment from 'moment'
+import 'moment/locale/pt-br'
 const toDate = v => typeof v === 'number' ? new Date(v) : typeof v === 'string' ? new Date(Number(v)) : null
 export default {
   // FORMATADORES  DE CAMPOS:
@@ -127,26 +129,9 @@ export default {
       <br/> ${num(percent * 100) || '0'} %`
   },
   prazo (options) {
-    let data_descritiva = (_data) => {
-      let data = (typeof _data === 'number') ? new Date(Math.abs(_data)) : _data
-      if (data instanceof Date) {
-        let descricao = []
-        let anos = data.getFullYear() - 1970
-        let meses = data.getMonth()
-        let dias = data.getDate() - 1
-        descricao.push((anos > 0) ? anos + ' ano' + (anos === 1 ? '' : 's') : false)
-        descricao.push((meses > 0) ? meses + ' ' + (meses === 1 ? 'mês' : 'meses') : false)
-        descricao.push((dias > 0) ? (dias + ' dia' + (dias === 1) ? '' : 's') : false)
-        return descricao.filter(a => a).join(' e ')
-      } else {
-        return null
-      }
-    }
     return (v, k, i) => {
       let { inicio_previsto, fim_previsto, inicio_realizado, fim_realizado } = i
       // console.log('inicio_previsto:', inicio_previsto, 'fim_previsto:', fim_previsto, 'inicio_realizado:', inicio_realizado, 'fim_realizado:', fim_realizado)
-      let days = 0
-      let today = new Date().getTime()
       let ip = !!inicio_previsto
       let fp = !!fim_previsto
       let ir = !!inicio_realizado
@@ -155,28 +140,25 @@ export default {
         if (fp) { // final_previsto
           if (ir) { // inicio_realizado
             if (fr) { // fim_realizado
-              let fimRealizado = new Date(fim_realizado)
-              let diff = (today - fimRealizado)
-              if (diff > 0) {
-                return 'concluído há ' + data_descritiva(diff)
-              }
-              return `finalizado há ${data_descritiva(days)} (${(new Date(fim_realizado)).toLocaleDateString()})`
+              return `
+                finalizado há
+                ${moment(fim_realizado).fromNow(true)}
+                <small>(${moment(fim_realizado).format('LL')})</small>`
             } else if (!fr) { // inicio_previsto, fim_previsto, inicio_realizado
-              days = ((new Date(fim_previsto)) - today)
-              return data_descritiva(days) + ' (' + (new Date(fim_previsto)).toLocaleDateString() + ')'
+              return ` ${(new Date()) > fim_previsto ? 'Vencido há' : 'Vence em'}
+                ${moment(fim_previsto).fromNow(true)}
+                <small>(${moment(fim_previsto).format('LL')})</small>`
             }
           } else if (!ir) {
-            if (fr) { // inicio_previsto, fim_previsto, fim_realizado
-              return `[fim sem início]`
-            } else if (!fr) { // inicio_previsto, fim_previsto
-              return 'começo previsto: ' + (new Date(inicio_previsto)).toLocaleDateString()
-            }
+            return `${(new Date()) > inicio_previsto ? 'Deveria ter começado há' : 'Começará em'}
+              ${moment(inicio_previsto).fromNow(true)}
+              <small>(${moment(inicio_previsto).format('LL')})</small>`
           }
         } else if (!fp) { // inicio_previsto
-          return `[falta fim previsto]`
+          return `[falta fim previsto] (inicio em ${moment(inicio_previsto).format('L')})`
         }
       } // nenhum dado
-      return `[sem previsão]`
+      return `[sem prazo]`
     }
   }
 }
