@@ -26,6 +26,8 @@ export default gql`
         }
         escopo_previsto
         escopo_realizado
+        custo_previsto
+        custo_realizado
         inicio_previsto
         fim_previsto
         inicio_realizado
