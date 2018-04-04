@@ -1,4 +1,5 @@
 {
-  "graphqlEndpoint": "http://localhost:7700/graphql",
+  "server": "http://localhost:7700",
+  "graphqlEndpoint": "/graphql",
   "connectGraphqlToDevTools": true
 }
