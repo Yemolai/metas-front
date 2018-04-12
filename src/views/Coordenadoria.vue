@@ -27,6 +27,7 @@
         b-col.text-right
           b-btn.floating(
             variant='primary'
+            v-if="can('meta_create')"
             @click='goToAddMeta'
           ) Criar nova meta
       b-table(
@@ -45,7 +46,12 @@ import GET_COORDENADORIA from '@/constants/get-coordenadoria'
 export default {
   name: 'Coordenadoria',
   methods: {
-    can: function (p) { return !!this.user.permissoes[p] },
+    can: function (p) {
+      let app = this.$root.$children[0]
+      if (!app) { return false }
+      let usr = app.usuario
+      return usr ? usr.permissoes[p] : false
+    },
     go: (...args) => (router.push(...args)),
     goToMetaDetails: function (item) {
       return this.go({
@@ -81,9 +87,11 @@ export default {
         'titulo',
         { key: 'responsavel', formatter: v => v ? v.nome : '' },
         { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
-        { key: 'custo', formatter: (v, k, i) => `
-          ${money(i.custo_realizado)}&nbsp;
-          <small>/${money(i.custo_previsto)}</small>`
+        {
+          key: 'custo',
+          formatter: (v, k, i) => `
+            ${money(i.custo_realizado)}&nbsp;
+            <small>/${money(i.custo_previsto)}</small>`
         },
         { key: 'prazo', formatter: Formatters.prazo() }
       ],

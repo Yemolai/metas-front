@@ -9,8 +9,8 @@
 import axios from 'axios'
 import topBarComponent from '@/components/top-bar'
 import footerComponent from '@/components/footer'
-import GET_ALL_PERMISSOES from '@/constants/get-all-permissoes'
 import GET_USUARIO from '@/constants/get-usuario'
+import cfg from '@/cfg.json'
 export default {
   name: 'App',
   components: {
@@ -18,43 +18,53 @@ export default {
     footerComponent
   },
   data () {
-    let token = window.localStorage.getItem('token')
-    // console.log('token:', token)
     return {
       loading: 0,
       permissoes: [],
       usuarioId: 0,
       usuario: {},
-      token
+      token: null
     }
   },
+  mounted: function () {
+    this.token = window.localStorage.getItem('token')
+  },
   watch: {
-    token: function () {
-      if (this.token === null) {
+    token: function (newToken, oldToken) {
+      if (oldToken !== null && newToken === null) {
+        this.usuarioId = 0
         return false
+      } else if (newToken !== null && oldToken === null) {
+        let vm = this
+        let addr = cfg.server + '/user'
+        let opts = { headers: { Authorization: 'Bearer ' + this.token } }
+        axios.get(addr, opts)
+          .then(res => {
+            if (res.data) {
+              vm.usuarioId = res.data.user || 0
+            } else {
+              vm.usuarioId = 0
+            }
+          })
       }
-      let vm = this
-      axios.get('http://localhost:7700/user/', { headers: { Authorization: 'Bearer ' + this.token } })
-        .then(response => {
-          if (response.data) {
-            console.log('data', response.data)
-            vm.usuarioId = response.data
-          } else {
-            vm.usuarioId = 0
-            console.log('response:', response)
-          }
-        })
+    },
+    usuarioId: function () {
+      this.$apollo.queries.usuario.refetch({ userId: this.usuarioId })
+    },
+    usuario: function (novoUsuario, antigoUsuario) {
+      let { currentRoute } = this.$router
+      if (novoUsuario === null && antigoUsuario !== null) {
+        this.$router.push({ path: '/login', query: { redirect: currentRoute.fullPath } })
+      } else if (novoUsuario !== null && antigoUsuario === null && currentRoute.name === 'Login') {
+        // as the user wants to continue navigation after login, use the redirect to guide the next route
+        this.$router.replace(this.$router.currentRoute.query.redirect || { name: 'Home' })
+      }
     }
   },
   apollo: {
-    permissoes: {
-      query: GET_ALL_PERMISSOES
-    },
     usuario: {
       query: GET_USUARIO,
-      variables: { // TODO: mudar aqui para um watch e apenas fazer refetch
-        userId: this.usuarioId || 0
-      }
+      variables: { userId: this.usuarioId || 0 }
     }
   }
 }

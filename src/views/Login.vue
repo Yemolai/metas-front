@@ -11,7 +11,7 @@
           )
       b-container.my-4.text-left
         b-card(style="max-width: 32rem").mx-auto
-          b-form(@submit="submitForm" @reset="resetForm")
+          b-form(@submit="submitForm")
             h4 Login
             b-form-group(
               label="Nome de usuário"
@@ -44,37 +44,49 @@
               block
               variant="outline-primary"
               type="submit"
+              :disabled="logged === true"
             )#submit-form Entrar
 </template>
 <script>
 /* eslint-disable */
 import axios from 'axios'
+import cfg from '@/cfg.json'
 export default {
   data () {
     return {
-      username: null,
-      password: null,
-      rememberMe: false
+      username: 'root',
+      password: '#r001!',
+      rememberMe: true
+    }
+  },
+  computed: {
+    logged: function () {
+      let app = this.$root.$children[0]
+      if (!app) { return false }
+      return !!app.usuario
     }
   },
   methods: {
     submitForm: function () {
-      alert('work in progress')
-      return false
-      let { username, password } = this
-      if (username && password) {
-        axios.post('http://localhost:7700/auth/login',
-          { // data
-            usuario: username,
-            senha: password
-          }, { // options
-            'Content-Type': 'application/json', // needed to explicitly define payload as json
-            responseType: 'json' // needed to explicitly define response as json
-          })
+      let app = this.$root.$children[0]
+      let address = cfg.server + '/auth/login'
+      let usuario = this.username
+      let senha = this.password
+      let vm = this
+      let reqOptions = { // requisition options
+        'Content-Type': 'application/json', // needed to explicitly define payload as json
+        responseType: 'json' // needed to explicitly define response as json
+      }
+      if (usuario && senha) {
+        axios.post(address, { usuario, senha }, reqOptions)
           .then(function (response) {
-            console.log('response:', typeof response, response)
             if (response.data.token) {
+              // usar sessionStorage quando "rememberMe" for false
               window.localStorage.setItem('token', response.data.token)
+              app.token = response.data.token
+              if (!(vm.$router.query && vm.$router.query.redirect)) {
+                vm.$router.replace({ name: 'Home' })
+              }
             } else {
               alert(response.data.message || 'Não foi possível realizar login.')
             }
@@ -82,12 +94,7 @@ export default {
           .catch(response => alert(response.message || 'Não foi possível realizar login. Contate o suporte.'))
       } else {
         alert('Campos não preenchidos')
-        console.log('username:', username)
-        console.log('password:', password)
       }
-    },
-    resetForm: function () {
-      //
     }
   }
 }

@@ -45,8 +45,11 @@ const capitalize = v => { // pra capitalizar as palavras de uma frase
 export default {
   // Component logic goes here
   methods: {
-    can: function (permissao) {
-      return !!this.user.permissoes[permissao]
+    can: function (p) {
+      let app = this.$root.$children[0]
+      if (!app) { return false }
+      let usr = app.usuario
+      return usr ? usr.permissoes[p] : false
     },
     goTo: (...args) => (router.push(...args)),
     rowClicked: item => router.push({
@@ -57,7 +60,6 @@ export default {
   data () {
     return {
       loading: 0,
-      user: { permissoes: { setor_create: true } },
       setores: [], // definição dos dados da tabela
       fields: [ // definição das colunas da tabela
         // { key: 'id', label: '#' },

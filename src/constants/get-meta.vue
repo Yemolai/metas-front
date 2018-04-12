@@ -54,6 +54,14 @@ export default gql`
           id
           nome
         }
+        escopo_realizado
+        escopo_previsto
+        custo_realizado
+        custo_previsto
+        inicio_previsto
+        inicio_realizado
+        fim_previsto
+        fim_realizado
       }
       atualizacoes {
         id

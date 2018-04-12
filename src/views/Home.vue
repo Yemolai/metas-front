@@ -16,6 +16,7 @@ import gql from 'graphql-tag'
 import Formatters from '@/components/Formatters'
 import Helpers from '@/components/Helpers'
 import router from '@/router'
+import { protect } from '@/components/ProtectRoute'
 const fields = [
   {key: 'titulo', label: 'Título'},
   {key: 'atualizado', label: 'Atualizado em', formatter: Helpers.timestamp()},
@@ -32,6 +33,7 @@ export default {
       fields
     }
   },
+  beforeRouteEnter: protect,
   methods: {
     goToMeta: item => router.push({
       name: 'Meta',
@@ -49,9 +51,11 @@ export default {
       query: gql`
         query getUser($usrId: ID!) {
           usuario(id: $usrId) {
+            id
             nome
             usuario
             permissoes {
+              id
               meta_create
               meta_update
               meta_delete
