@@ -43,7 +43,7 @@ const router = new Router({
       component: AddUser
     }, {
       // path: '/painel/:setor(\\w+)?/:page(\\d+)?',
-      path: '/painel/resultados/:setor?',
+      path: '/painel/resultados/:setor?/:page?',
       name: 'PainelResultados',
       component: PainelResultados,
       props: true

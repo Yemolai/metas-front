@@ -10,10 +10,10 @@
           b-col(cols='12').year-progress-container
             year-progress
           b-col(cols='4')
-            //- Seletor de diretoria
+            //- Seletor de diretoria ===
             b-form-select.mb-3(
-              v-model='form.diretoria'
-              :options='listaDiretorias'
+              v-model='diretoria'
+              :options='setores'
               value-field='id'
               text-field='sigla'
             )
@@ -21,14 +21,15 @@
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
           b-col(cols='8').diretoria-nome
-            p.text-left(v-if='form.diretoria !== null')
+            p.text-left(v-if='diretoria !== null')
               span {{ setor.nome || '' }}
-      b-col(v-if='w > 992' md='2' sm='12')
+      b-col(v-if='window.innerWidth > 992' md='2' sm='12')
         //- Esse componente ainda não é dinâmico
-        RadialProgress(:data='[[progressoEscopo, 100]]').limit-height.negative-borders
+        ScopeMeter(:lista-de-metas='metas')
     //- tabela:
     b-container.table.text-left
       b-table(
+        :sort-compare='sort'
         @row-clicked='goToMeta'
         :items='metas'
         :fields='campos'
@@ -39,27 +40,60 @@
 <script>
 import router from '@/router'
 import YearProgress from '@/components/YearProgress'
-import RadialProgress from '@/components/RadialProgress'
+import ScopeMeter from '@/components/ScopeMeter'
 import Formatters from '@/components/Formatters'
 import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
+import sortMetas from '@/components/sort'
+
 const campos = [
-  {key: 'setor', formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla} / ${i.coordenadoria.sigla}` : ''},
-  {key: 'titulo', label: 'Meta'},
-  {key: 'resumo', label: 'Ação/Análise'},
-  {key: 'responsavel', label: 'Responsável', formatter: v => v && v !== null ? v.nome : ''},
-  {key: 'escopo', formatter: Formatters.escopo},
-  {key: 'prazo', formatter: Formatters.deadline},
-  {key: 'custo', formatter: (v, k, i) => Formatters.cost(i)}
+  {
+    key: 'setor',
+    formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla} / ${i.coordenadoria.sigla}` : '',
+    sortable: true
+  },
+  {
+    key: 'titulo',
+    label: 'Meta',
+    sortable: true
+  },
+  {
+    key: 'resumo',
+    label: 'Ação/Análise',
+    sortable: true
+  },
+  {
+    key: 'responsavel',
+    label: 'Responsável',
+    formatter: v => v && v !== null ? v.nome : '',
+    sortable: true
+  },
+  {
+    key: 'escopo',
+    formatter: Formatters.escopo,
+    sortable: true
+  },
+  {
+    key: 'prazo',
+    formatter: Formatters.deadline,
+    sortable: true
+  },
+  {
+    key: 'custo',
+    formatter: (v, k, i) => Formatters.cost(i),
+    sortable: true
+  }
 ]
 export default {
   name: 'painel-de-resultados',
   components: {
     YearProgress,
-    RadialProgress
+    ScopeMeter
   },
   methods: {
+    sort: sortMetas,
+    // metodo executado para navegar para uma meta
     goToMeta: function (item) {
       return router
         .push({
@@ -73,68 +107,53 @@ export default {
         })
     }
   },
-  computed: {
-    progressoEscopo: function () {
-      if (this.form.diretoria === null || this.metas.length < 1) {
-        return 0
+  watch: {
+    // observacao do model do dropdown para efetuar navegacao
+    diretoria: function (newValue, oldValue) {
+      // apenas agir se o valor antigo for diferente do novo e não for nulo
+      if (newValue !== oldValue && newValue !== null) {
+        let setor = this.setores.filter(s => s.id === newValue)
+          .reduce((p, a) => a.sigla, null)
+        let route = { name: 'PainelResultados', params: {setor, page: 1} }
+        console.log('route', route)
+        this.$router.push(route)
       }
-      let valores = this.metas
-        .map(m => m.escopo_realizado && m.escopo_previsto ? m.escopo_realizado / m.escopo_previsto : 0)
-        .map(m => m > 1 ? 1 : m)
-      let soma = valores
-        .reduce((p, a) => (p + a), 0)
-      return (soma / this.metas.length) * 100
-    },
+    }
+  },
+  computed: {
+    // lista de metas da diretoria selecionada
     metas: function () {
-      if (this.form.diretoria === null || this.loading === 1) {
+      if (this.diretoria === null || this.loading === 1) {
         return []
       }
-      return this.setor.coordenadorias
-        .map(coordenadoria => (coordenadoria.metas || []))
-        .reduce((p, a) => p.concat(a), [])
-    },
-    w: () => window.innerWidth,
-    listaDiretorias: function () { // lista para o dropdown
-      return this.setores.map(_diretoria => {
-        let { id, sigla, nome } = _diretoria
-        return { id, sigla, nome } // sigla é o text, nome é o value
-      })
+      let Cs = this.setor.coordenadorias
+      return Cs.map(c => (c.metas || [])).reduce((p, a) => p.concat(a), [])
     }
   },
   data () {
+    let params = this.$router.params
+    let sigla = params && params.setor ? params.setor : null
+    let page = params && params.page ? params.page : 1
     return {
-      loading: 0,
-      form: {
-        diretoria: null
-      },
-      setores: [],
-      setor: {},
-      progress: [[160, 280]],
-      campos
+      loading: 0, // isApolloStillLoading flag
+      diretoria: null, // selected setor reference id
+      setores: [], // list with all instances of setor
+      setor: {}, // selected setor instance
+      campos,
+      sigla,
+      page,
+      window // window reference
     }
   },
   apollo: {
-    setores: {
-      query: GET_SETORES
-    },
+    setores: { query: GET_SETORES },
     setor: {
       query: function () {
-        if (this.form.diretoria === null) {
-          return gql`
-              {
-                setor(id: 0) {
-                  id
-                }
-              }
-            `
-        }
-        return GET_METAS_SETOR
+        let GET_NULLABLE_META = gql`{ setor(id: 0) {id} }`
+        return (this.diretoria === null) ? GET_NULLABLE_META : GET_METAS_SETOR
       },
       variables: function () {
-        return {
-          submetas: false,
-          setorId: (this.form.diretoria === null) ? 0 : this.form.diretoria
-        }
+        return { submetas: false, setorId: this.diretoria || 0 }
       }
     }
   }
@@ -147,12 +166,5 @@ export default {
   }
   .diretoria-nome {
     padding-top: 0.5rem;
-  }
-  .negative-borders {
-    margin-top: -3rem;
-    margin-left: -2rem;
-  }
-  .limit-height>canvas {
-    max-height: 5rem;
   }
 </style>
