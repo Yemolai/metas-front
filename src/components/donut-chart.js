@@ -6,6 +6,10 @@ export default {
   mixins: [reactiveProp],
   props: ['options'],
   mounted () {
+    if (this.options) {
+      this.options.responsive = true
+      this.options.maintainAspectRatio = true
+    }
     // this.chartData is created in the mixin.
     // If you want to pass options please create a local options object
     this.renderChart(this.chartData, this.options)

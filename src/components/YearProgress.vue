@@ -1,5 +1,5 @@
 <template lang="pug">
-b-container.year-progress
+b-container.year-progress.px-0
     b-row
         b-col(v-for='(month, idx) in shownMonths' :key='idx')
             h5.month {{ month }}

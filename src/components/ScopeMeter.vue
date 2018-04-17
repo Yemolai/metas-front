@@ -1,14 +1,39 @@
 <template>
-  <RadialProgress
-    class="limit-height negative-borders"
-    :data="[[progressoEscopo, 100]]"
-  />
+  <div>
+    <RadialProgress
+      class="hidden-xs"
+      :data="[[progressoEscopo, 100]]"
+    />
+    <div class="visible-xs">
+        <b-row>
+          <b-col cols='2' class="text-left text-secondary">
+            <small>0%</small>
+          </b-col>
+          <b-col>
+            Progresso {{num(progressoEscopo)}} %
+          </b-col>
+          <b-col cols='2' class="text-right text-secondary">
+            <small>100%</small>
+          </b-col>
+        </b-row>
+        <b-row class="mb-4">
+          <b-col>
+            <b-progress :value="progressoEscopo" :max="100"/>
+          </b-col>
+        </b-row>
+    </div>
+  </div>
 </template>
 <script>
 import RadialProgress from '@/components/RadialProgress'
+import num from '@/fn/num'
 export default {
   components: {RadialProgress},
   props: ['listaDeMetas'],
+  data () {
+    return { metas: this.listaDeMetas || false }
+  },
+  methods: { num },
   computed: {
     progressoEscopo: function () {
       // caso não haja metas, retorne zero
@@ -30,17 +55,24 @@ export default {
         .reduce((p, a) => (p + a), 0)
       // media dos progressos
       let media = soma / valores.length
-      return Number(media.toFixed(4)) * 100 // para porcentagem multiplicar por cem
+      return Number((media * 100).toFixed(4)) // para porcentagem multiplicar por cem
     }
   }
 }
 </script>
 <style scoped>
-.negative-borders {
-  margin-top: -3rem;
-  margin-left: -2rem;
-}
-.limit-height>canvas {
-  max-height: 5rem;
-}
+  .hidden-xs {
+    display: block;
+  }
+  .visible-xs {
+    display: none;
+  }
+  @media screen and (max-width: 575px) {
+    .hidden-xs {
+      display: none;
+    }
+    .visible-xs {
+      display: block;
+    }
+  }
 </style>

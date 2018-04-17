@@ -1,5 +1,5 @@
 <template>
-  <div class="overlay-container">
+  <div class="overlay-container" :style="styles.container">
     <donut-chart
       :chart-data="datacollection"
       :options="options"
@@ -12,15 +12,17 @@
 
 <script>
 import DonutChart from '@/components/donut-chart.js'
-
+import num from '@/fn/num'
 export default {
   components: {
     DonutChart
   },
-  props: ['data'],
+  props: ['data', 'height', 'width'],
   data () {
+    let v = this.data ? ((this.data[0][0] / this.data[0][1]) * 100) : 0
+    let progress = num(v) + ' %'
     return {
-      progress: '0 %',
+      progress,
       datacollection: null,
       options: {
         cutoutPercentage: 60,
@@ -28,20 +30,31 @@ export default {
         circumference: Math.PI,
         tooltips: { enabled: false },
         hover: { mode: null }
+      },
+      styles: {
+        container: {
+          position: 'relative',
+          height: this.height ? this.height : '100%',
+          width: this.width ? this.width : '100%'
+        }
       }
     }
   },
   mounted () {
     this.fillData()
   },
+  computed: {
+    value: function () {
+      return this.data ? (this.data[0][0] / this.data[0][1]) : 0
+    }
+  },
   watch: {
     data: function () {
       this.fillData()
-      let p = this.data ? this.data[0][0] / this.data[0][1] : 0
+      let p = this.value
       let v = p * 100
       let value = v.toFixed(2).split('.')
       value[0] = value[0].split(/(?=(?:...)*$)/).join('.')
-      this.progress = ((v === 0) ? 0 : value.join(',')) + ' %'
     }
   },
   methods: {

@@ -1,15 +1,16 @@
 <template lang='pug'>
-  b-container(fluid)#painel-de-resultados
+  b-container#painel-de-resultados
     h3.text-center.mt-4 Painel de resultados
     hr
     h4(v-if="loading") Carregando...
     b-row(v-else)
-      b-col(md='10' sm='12')
+      b-col(md='10' sm='8')
         b-row
           //- Barra de progresso de ano
-          b-col(cols='12').year-progress-container
+          b-col.year-progress-container
             year-progress
-          b-col(cols='4')
+        b-row
+          b-col(md='6' sm='12')
             //- Seletor de diretoria ===
             b-form-select.mb-3(
               v-model='diretoria'
@@ -20,92 +21,33 @@
               //- Aqui entra a primeira opção nula
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
-          b-col(cols='8').diretoria-nome
-            p.text-left(v-if='diretoria !== null')
+          b-col(v-if='diretoria !== null' sm='12' md='6').diretoria-nome.hidden-sm
+            p.text-left
               span {{ setor.nome || '' }}
-      b-col(v-if='window.innerWidth > 992' md='2' sm='12')
-        //- Esse componente ainda não é dinâmico
-        ScopeMeter(:lista-de-metas='metas')
+      b-col(md='2' sm='4').hidden-md-down
+        center
+          //- Esse componente ainda não é dinâmico
+          ScopeMeter(:lista-de-metas='metas')
+      b-col(v-if="setor && 'nome' in setor" sm='12').visible-sm
+        h4 {{ setor.sigla || '' }} - {{ setor.nome || '' }}
     //- tabela:
-    b-container.table.text-left
-      b-table(
-        :sort-compare='sort'
-        @row-clicked='goToMeta'
-        :items='metas'
-        :fields='campos'
-        stacked='md'
-        striped
-      )
+    b-container.table.text-left.mx-0.px-0
+      MetasTable(:items='metas')
 </template>
 <script>
-import router from '@/router'
 import YearProgress from '@/components/YearProgress'
+import MetasTable from '@/components/MetasTable'
 import ScopeMeter from '@/components/ScopeMeter'
-import Formatters from '@/components/Formatters'
 import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
-import sortMetas from '@/components/sort'
 
-const campos = [
-  {
-    key: 'setor',
-    formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla} / ${i.coordenadoria.sigla}` : '',
-    sortable: true
-  },
-  {
-    key: 'titulo',
-    label: 'Meta',
-    sortable: true
-  },
-  {
-    key: 'resumo',
-    label: 'Ação/Análise',
-    sortable: true
-  },
-  {
-    key: 'responsavel',
-    label: 'Responsável',
-    formatter: v => v && v !== null ? v.nome : '',
-    sortable: true
-  },
-  {
-    key: 'escopo',
-    formatter: Formatters.escopo,
-    sortable: true
-  },
-  {
-    key: 'prazo',
-    formatter: Formatters.deadline,
-    sortable: true
-  },
-  {
-    key: 'custo',
-    formatter: (v, k, i) => Formatters.cost(i),
-    sortable: true
-  }
-]
 export default {
   name: 'painel-de-resultados',
   components: {
     YearProgress,
-    ScopeMeter
-  },
-  methods: {
-    sort: sortMetas,
-    // metodo executado para navegar para uma meta
-    goToMeta: function (item) {
-      return router
-        .push({
-          name: 'Meta',
-          params: {
-            setor: item.coordenadoria.setor.sigla,
-            coordenadoria: item.coordenadoria.sigla,
-            year: (new Date()).getFullYear(),
-            meta: item.id
-          }
-        })
-    }
+    ScopeMeter,
+    MetasTable
   },
   watch: {
     // observacao do model do dropdown para efetuar navegacao
@@ -131,7 +73,7 @@ export default {
     }
   },
   data () {
-    let params = this.$router.params
+    let params = this.$route.params
     let sigla = params && params.setor ? params.setor : null
     let page = params && params.page ? params.page : 1
     return {
@@ -139,7 +81,6 @@ export default {
       diretoria: null, // selected setor reference id
       setores: [], // list with all instances of setor
       setor: {}, // selected setor instance
-      campos,
       sigla,
       page,
       window // window reference
@@ -166,5 +107,19 @@ export default {
   }
   .diretoria-nome {
     padding-top: 0.5rem;
+  }
+  .hidden-sm {
+      display: block;
+    }
+    .visible-sm {
+      display: none;
+    }
+  @media screen and (max-width: 575px) {
+    .hidden-sm {
+      display: none;
+    }
+    .visible-sm {
+      display: block;
+    }
   }
 </style>
