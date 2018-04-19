@@ -5,7 +5,7 @@
       :options="options"
     />
     <div class="centered-overlay-text">
-      {{ progress }}
+      {{ progressText }} %
     </div>
   </div>
 </template>
@@ -17,12 +17,9 @@ export default {
   components: {
     DonutChart
   },
-  props: ['data', 'height', 'width'],
+  props: ['data', 'progress', 'height', 'width'],
   data () {
-    let v = this.data ? ((this.data[0][0] / this.data[0][1]) * 100) : 0
-    let progress = num(v) + ' %'
     return {
-      progress,
       datacollection: null,
       options: {
         cutoutPercentage: 60,
@@ -46,6 +43,13 @@ export default {
   computed: {
     value: function () {
       return this.data ? (this.data[0][0] / this.data[0][1]) : 0
+    },
+    progressText: function () {
+      if (this.progress) {
+        return this.progress
+      }
+      let v = this.data ? ((this.data[0][0] / this.data[0][1]) * 100) : 0
+      return num(v)
     }
   },
   watch: {

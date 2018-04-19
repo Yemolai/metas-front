@@ -98,11 +98,9 @@ export default {
     w: () => window.innerWidth,
     metas: function () {
       if (this.form.diretoria === null || this.loading === 1) {
-        console.log('this.form.diretoria', this.form.diretoria)
         return []
       }
       if (this.form.coordenadoria === null || this.loading === 1) {
-        console.log('this.form.coordenadoria', this.form.coordenadoria)
         return []
       }
       let setor = this.setor

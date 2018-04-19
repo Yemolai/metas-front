@@ -2,7 +2,8 @@
   <div>
     <RadialProgress
       class="hidden-xs"
-      :data="[[progressoEscopo, 100]]"
+      :data="[[escopo, 100]]"
+      :progress="progress"
     />
     <div class="visible-xs">
         <b-row>
@@ -10,7 +11,7 @@
             <small>0%</small>
           </b-col>
           <b-col>
-            Progresso {{num(progressoEscopo)}} %
+            Progresso {{progress}} %
           </b-col>
           <b-col cols='2' class="text-right text-secondary">
             <small>100%</small>
@@ -18,7 +19,7 @@
         </b-row>
         <b-row class="mb-4">
           <b-col>
-            <b-progress :value="progressoEscopo" :max="100"/>
+            <b-progress :value="escopo" :max="100"/>
           </b-col>
         </b-row>
     </div>
@@ -30,18 +31,14 @@ import num from '@/fn/num'
 export default {
   components: {RadialProgress},
   props: ['listaDeMetas'],
-  data () {
-    return { metas: this.listaDeMetas || false }
-  },
-  methods: { num },
-  computed: {
-    progressoEscopo: function () {
+  methods: {
+    update: function (metas) {
       // caso não haja metas, retorne zero
-      if (!this.metas || this.metas.length <= 0) {
+      if (!metas || metas.length <= 0) {
         return 0
       }
       // array de progressos de metas
-      let valores = this.listaDeMetas
+      let valores = metas
         .map(function (m) { // calcula progresso de escopo de cada meta
           if (m.escopo_realizado && m.escopo_previsto) {
             let progresso = m.escopo_realizado / m.escopo_previsto
@@ -56,6 +53,21 @@ export default {
       // media dos progressos
       let media = soma / valores.length
       return Number((media * 100).toFixed(4)) // para porcentagem multiplicar por cem
+    }
+  },
+  computed: {
+    progress: function () {
+      return num(this.escopo || 0)
+    }
+  },
+  watch: {
+    'listaDeMetas': function (newValue) {
+      this.escopo = this.update(newValue)
+    }
+  },
+  data () {
+    return {
+      escopo: 0
     }
   }
 }

@@ -23,13 +23,13 @@
                 option(:value='null' disabled) -- Escolha uma diretoria --
           b-col(v-if='!loading && diretoria !== null' sm='12' md='6').diretoria-nome.hidden-sm
             p.text-left
-              span {{ setor.nome || '' }}
+              span {{ setor ? setor.nome || '' : '' }}
       b-col(md='2' sm='4').hidden-md-down
         center
           //- Esse componente ainda não é dinâmico
           ScopeMeter(:lista-de-metas='metas')
       b-col(v-if="!loading && setor && 'nome' in setor" sm='12').visible-sm
-        h4 {{ setor.sigla || '' }} - {{ setor.nome || '' }}
+        h4 {{ setor ? setor.sigla || '' : '' }} - {{ setor ? setor.nome || '' : '' }}
     //- tabela:
     b-container.table.text-left.mx-0.px-0
       MetasTable(:items='metas' :set-page='setPage' :get-page='page')
@@ -88,7 +88,7 @@ export default {
     },
     // lista de metas da diretoria selecionada
     metas: function () {
-      if (this.diretoria === null || this.loading === 1) {
+      if (!this.setor || this.diretoria === null || this.loading === 1) {
         return []
       }
       let Cs = this.setor.coordenadorias

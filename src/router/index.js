@@ -63,7 +63,7 @@ const router = new Router({
     },
     {
       // path: '/painel/:setor(\\w+)?/:coordenadoria(\\w+)?/:page(\\d+)?',
-      path: '/painel/desempenho/:coordenadoria?',
+      path: '/painel/desempenho/:setor?/:coordenadoria?/:page?',
       name: 'PainelDesempenho',
       component: PainelDesempenho,
       props: true
