@@ -17,10 +17,9 @@
           <b-form-select v-model="sortBy" :options="sortOptions">
             <option slot="first" disabled :value="null">Ordenar por...</option>
           </b-form-select>
-          <b-form-select :disabled="!sortBy" v-model="sortDesc" slot="append">
-            <option :value="true">A&#8674;Z</option>
-            <option :value="false">Z&#8674;A</option>
-          </b-form-select>
+          <b-btn :disabled="!sortBy" @click="sortDesc = !sortDesc" slot="append">
+            {{ sortDesc ? 'A&#8674;Z' : 'Z&#8674;A' }}
+          </b-btn>
         </b-input-group>
       </b-col>
       <b-col md="3" class="my-1">
