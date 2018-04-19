@@ -25,7 +25,7 @@
       </b-col>
       <b-col md="3" class="my-1">
         <b-form-select v-model="perPage" :options="pageOptions">
-          <option slot="first" disabled :value="null">Itens por página (padrão: 10)</option>
+          <option slot="first" disabled :value="null">Itens por página (total: {{metas.length}})</option>
         </b-form-select>
       </b-col>
     </b-row>
