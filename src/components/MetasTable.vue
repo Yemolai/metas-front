@@ -54,7 +54,7 @@
         </b-table>
       </b-container>
     </b-row>
-    <b-row v-if="!loading && metas.length > 0">
+    <b-row class='sticky-footer' v-if="!loading && metas.length > 0">
       <b-col cols="12" class="my-1 h-100 mx-0">
         <b-pagination
           class="my-0"
@@ -179,5 +179,13 @@ export default {
 }
 </script>
 <style scoped>
-
+  .sticky-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(240, 240, 240, 0.8);
+    color: white;
+    text-align: center;
+  }
 </style>
