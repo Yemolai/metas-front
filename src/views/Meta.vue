@@ -4,19 +4,15 @@
       b-col
         h3 M
           small ETA
-          small(v-if='!loading && setorId') &nbsp;
+          small(v-if='!loading && meta && meta.coordenadoria && meta.coordenadoria.setor && setorId') &nbsp;
             router-link(:to="{name: 'Setor', params: {setorId}}")
-              span {{ meta.coordenadoria.setor.sigla}}/
+              span {{ meta.coordenadoria.setor.sigla }}/
             router-link(:to="{name: 'Coordenadoria', params: {setorId, coordId}}")
               span {{ meta.coordenadoria.sigla}}/
             span {{ new Date(meta.createdAt).getFullYear()}}/
             span {{ meta.id }}
-        router-link(v-if='meta.pai' :to="metaPaiRoute")
-          small Submeta de&nbsp;
-            span {{ meta.coordenadoria.setor.sigla }}/
-            span {{ meta.coordenadoria.sigla }}/
-            span {{ new Date(meta.createdAt).getFullYear() }}/
-            span {{ meta.pai.id }}
+        small(v-if='!loading && meta && !isParent && isChild' href="#")
+          router-link(:to="{path: this.meta.pai.id}") Submeta de {{ paiUrl }}
       b-col.text-right
         b-dd(variant='outline-secondary' size='sm' right no-caret)
           template(slot='button-content')
@@ -34,7 +30,12 @@
         b-row.mb-2
           b-col(cols='12').editable
             h4.card-title(style="margin-bottom: 0") {{ meta.titulo }}
-            b-btn(variant='outline-primary' size='sm' @click="update('titulo')").edit-btn
+            b-btn(
+              v-if="canUpdate"
+              size='sm'
+              variant='outline-primary'
+              @click="update('titulo')"
+            ).edit-btn
               span Atualizar título
         p.card-text
           b-row
@@ -46,7 +47,12 @@
             b-col(md='4' sm='12').editable Última ação:&nbsp;
               span(v-if='meta.resumo') {{ meta.resumo }}
               span(v-else  style='color:rgba(0,0,0,0.5)') [indefinido]
-              b-btn(variant='outline-primary' size='sm' @click="update('resumo')").edit-btn
+              b-btn(
+                v-if="canUpdate"
+                size='sm'
+                variant='outline-primary'
+                @click="update('resumo')"
+              ).edit-btn
                 span Atualizar ação
             b-col(md='4' sm='12').text-right
               span(v-if='meta.atualizado') Atualizado: {{ date(meta.atualizado) }}
@@ -56,7 +62,12 @@
             b-col(cols='12').editable Situação da meta:&nbsp;
               span(v-if='meta.estado') {{ meta.estado }}
               small(v-else style='color:rgba(0,0,0,0.5)') [indefinido]
-              b-btn(variant='outline-primary' size='sm' @click="update('estado')").edit-btn
+              b-btn(
+                v-if="canUpdate"
+                size='sm'
+                variant='outline-primary'
+                @click="update('estado')"
+              ).edit-btn
                 span Atualizar situação
           hr
           b-row.mb-2
@@ -69,6 +80,7 @@
               small (previsto: {{ date(meta.inicio_previsto) || '?' }} - &nbsp;
                 span {{ date(meta.fim_previsto) || '?' }})
               b-dd(
+                v-if="canUpdate"
                 split
                 size='sm'
                 variant='outline-primary'
@@ -86,16 +98,26 @@
             b-col(md='4' sm='12').editable Escopo:&nbsp;
               br
               span(v-html='escopo(null, null, meta)')
-              b-dd(size='sm' variant='outline-primary' text='Atualizar escopo').edit-btn
+              b-dd(
+                v-if='!isParent && canUpdate'
+                size='sm'
+                variant='outline-primary'
+                text='Atualizar escopo'
+              ).edit-btn
                 b-dd-item(href="#" @click="update('escopo_previsto')") previsto
                 b-dd-item(href="#" @click="update('escopo_realizado')") realizado
             b-col(md='4' sm='12').editable Custo:&nbsp;
               br
               span(v-html='cost(meta)')
-              b-dd(variant='outline-primary' size='sm' text='Atualizar custo').edit-btn
+              b-dd(
+                v-if='!isParent && canUpdate'
+                variant='outline-primary'
+                size='sm'
+                text='Atualizar custo'
+              ).edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
-      div(v-if='!loading && meta.submetas && meta.submetas.length > 0')
+      div(v-if='!loading && isParent')
         b-row
           b-col
             h4 Submetas
@@ -137,7 +159,7 @@
               :fields='fields.atualizacoes'
               sort-by='id'
             )
-              template(slot='apagar' slot-scope='row')
+              template(slot='apagar' v-if="canUpdate" slot-scope='row')
                 b-btn(size='sm' variant='outline-secondary' @click.stop='delUpdate(row.item.id)').ml-2
                   span.fa.fa-trash
           b-btn(
@@ -199,7 +221,6 @@
 </template>
 <script>
 import gql from 'graphql-tag'
-import router from '@/router'
 import GET_META from '@/constants/get-meta'
 import DELETE_META from '@/constants/delete-meta'
 import GET_USUARIOS from '@/constants/get-usuarios'
@@ -223,10 +244,19 @@ const tableFields = [
   {key: 'custo_realizado', label: 'Custo efetivo', formatter: dinheiro()},
   'apagar'
 ]
+let money = v => Helpers.dinheiro()(v) || 'R$0,00'
 const subFields = [
-  {key: 'id', label: '#', formatter: (v, k, i) => v},
   {key: 'titulo', label: 'Título', formatter: (v, k, i) => v},
-  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome}
+  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome},
+  {key: 'escopo', formatter: (v, k, i) => numero()(i.escopo_realizado || 0) + '/' + numero()(i.escopo_previsto || 0)},
+  {key: 'prazo', formatter: Formatters.prazo()},
+  {
+    key: 'custo',
+    label: 'Gasto',
+    formatter: (v, k, i) => `
+      ${money(i.custo_realizado)}&nbsp;
+      <small>/${money(i.custo_previsto)}</small>`
+  }
 ]
 export default {
   name: 'Meta',
@@ -255,15 +285,36 @@ export default {
     }
   },
   computed: {
-    metaPaiRoute: function () {
-      return {
-        name: 'Meta',
-        params: {
-          setor: this.$route.params.setor,
-          coordenadoria: this.$route.params.coordenadoria,
-          meta: this.meta.pai.id
-        }
+    canUpdate: function () {
+      let app = this.$root.$children[0]
+      if (!app) {
+        return false
       }
+      let usr = app.usuario
+      if (!usr) {
+        return false
+      }
+      let owner = this.meta.responsavel
+      let meta_update = usr.permissoes['meta_update']
+      let own_meta_update = usr.permissoes['own_meta_update']
+      return meta_update || (owner.id === usr.id && own_meta_update)
+    },
+    permissoes: function () {
+      let usr = this.$root.usuario
+      return usr ? usr.permissoes : {}
+    },
+    paiUrl: function () {
+      if (this.meta && this.meta.pai) {
+        return `${this.meta.coordenadoria.setor.sigla}/${this.meta.coordenadoria.sigla}/${(new Date()).getFullYear()}/${this.meta.pai.id}`
+      } else {
+        return ``
+      }
+    },
+    isParent: function () {
+      return !!this.meta && !!this.meta.submetas && this.meta.submetas.length > 0
+    },
+    isChild: function () {
+      return !!this.meta && !!this.meta.pai
     },
     coordId: function () {
       if (this.meta && this.meta.coordenadoria) {
@@ -302,14 +353,14 @@ export default {
     }
   },
   methods: {
-    navigateToSubmeta: function (row) {
-      router.push({
+    navigateToSubmeta: function (item) {
+      this.$router.push({
         name: 'Meta',
         params: {
           setor: this.meta.coordenadoria.setor.sigla,
           coordenadoria: this.meta.coordenadoria.sigla,
           year: (new Date()).getFullYear(),
-          meta: row.id
+          meta: item.id
         }
       })
     },
@@ -324,7 +375,7 @@ export default {
       this.$apollo.mutate({ mutation, variables })
         .then(response => {
           if (response.error) throw response
-          vm.$apollo.queries.meta.refetch({ metaId: this.$route.params.meta })
+          vm.$apollo.queries.meta.refetch({ metaId: this.meta.id })
           if (response.data.deleteAtualizacao === 0) {
             alert('Não foi possível apagar este registro')
           } else {
@@ -338,18 +389,14 @@ export default {
     },
     update: function (field) {
       let fields = {
-        'titulo': {title: 'Nome/Título/Objeto da meta'},
-        'resumo': {title: 'Última ação'},
-        'estado': {title: 'Situação'},
-        'escopo_realizado': {title: 'Escopo realizado', type: 'number', formatter: numero()},
-        'escopo_previsto': {title: 'Escopo previsto', type: 'number', formatter: numero()},
-        'inicio_previsto': {title: 'Início previsto', type: 'date', formatter: data()},
-        'inicio_realizado': {title: 'Início realizado', type: 'date', formatter: data()},
-        'fim_previsto': {title: 'Fim previsto', type: 'date', formatter: data()},
-        'fim_realizado': {title: 'Fim realizado', type: 'date', formatter: data()},
-        'custo_previsto': {title: 'Custo previsto', type: 'number', formatter: dinheiro()},
-        'custo_realizado': {title: 'Custo realizado', type: 'number', formatter: dinheiro()},
-        'responsavel': {
+        titulo: {title: 'Nome/Título/Objeto da meta'},
+        resumo: {title: 'Última ação'},
+        estado: {title: 'Situação'},
+        inicio_previsto: {title: 'Início previsto', type: 'date', formatter: data()},
+        inicio_realizado: {title: 'Início realizado', type: 'date', formatter: data()},
+        fim_previsto: {title: 'Fim previsto', type: 'date', formatter: data()},
+        fim_realizado: {title: 'Fim realizado', type: 'date', formatter: data()},
+        responsavel: {
           title: 'Responsável',
           type: 'number',
           select: this.usuarios,
@@ -357,6 +404,15 @@ export default {
           text: 'nome',
           nullOption: 'Escolha um usuário',
           formatter: v => { console.log(v); return v ? v.nome : '' }
+        }
+      }
+      if (this.isParent) {
+        fields = {
+          ...fields,
+          escopo_realizado: {title: 'Escopo realizado', type: 'number', formatter: numero()},
+          escopo_previsto: {title: 'Escopo previsto', type: 'number', formatter: numero()},
+          custo_previsto: {title: 'Custo previsto', type: 'number', formatter: dinheiro()},
+          custo_realizado: {title: 'Custo realizado', type: 'number', formatter: dinheiro()}
         }
       }
       if (!fields[field]) {
@@ -420,7 +476,7 @@ export default {
           if (response.error) {
             throw response
           }
-          vm.$apollo.queries.meta.refetch({ metaId: this.$route.params.meta })
+          // vm.$apollo.queries.meta.refetch({ metaId: this.meta.id })
           vm.modal = {
             title: '',
             field: null,
@@ -430,6 +486,15 @@ export default {
             formatter: v => v
           }
           vm.$refs.updateModal.hide()
+          vm.$router.go({
+            name: 'Meta',
+            params: {
+              setor: this.meta.coordenadoria.setor.sigla,
+              coordenadoria: this.meta.coordenadoria.sigla,
+              year: (new Date()).getFullYear(),
+              meta: this.meta.id
+            }
+          })
         })
         .catch(response => {
           alert('Não foi possível realizar a operação. Por favor informe o suporte.')

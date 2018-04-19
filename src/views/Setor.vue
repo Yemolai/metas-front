@@ -29,7 +29,12 @@ import router from '@/router'
 export default {
   name: 'Diretoria',
   methods: {
-    can: function (p) { return !!this.user.permissions[p] },
+    can: function (p) {
+      let app = this.$root.$children[0]
+      if (!app) { return false }
+      let usr = app.usuario
+      return usr ? usr.permissoes[p] : false
+    },
     go: (...args) => router.push(...args),
     goToAddCoordenadoria: function () {
       return this.go({ name: 'AddCoordenadoria', params: { setorId: this.setor.id } })

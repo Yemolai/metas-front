@@ -27,7 +27,7 @@
             span.fa.fa-lg.fa-plus &nbsp;
             span M
             small ETA
-          b-nav-item.mx-2(href="#" :to="{name:'AddUser'}")
+          b-nav-item.mx-2(v-if="usuario !== null" href="#" :to="{name:'AddUser'}")
             span.fa.fa-lg.fa-plus &nbsp;
             span U
               small SUARIO
@@ -47,65 +47,66 @@
               b-dropdown-item(href="#" active) PT Português
               //- b-dropdown-item(href="#") EN English
               //- b-dropdown-item(href="#") ES Español
-          b-nav-item-dropdown.mx-2(v-if="usuario !== null")
+          b-nav-item-dropdown.ml-2(v-if="usuario !== null" right)
             //- Nesse template entram os dados do usuário atual
             template(slot="button-content")
-              b-img.user-avatar(src="/static/avatar.png")
+              b-img.user-avatar(:src="usrImg")
               span &nbsp;
-              span U
-                small SERNAME
-            b-dropdown-item(href="#" disabled)
+              span(v-if="usuario.usuario") {{ usuario.usuario.toUpperCase() }}
+            b-dropdown-item(href="#" @click="go('Perfil')")
               span Perfil
-            b-dropdown-item(href="#" @click="go('Setor')")
-              span Diretoria
-            b-dropdown-item(href="#" @click="go('Coordenadoria')")
+            b-dropdown-item(href="#" v-if='usuario.coordenadoria' @click="go('Coordenadoria')")
               span Coordenadoria
-            b-dropdown-item(href="#") Sair
-          b-nav-item(href="#" :to="{name:'Login'}")
+            b-dropdown-item(href="#" v-if='usuario.coordenadoria' @click="go('Setor')")
+              span Diretoria
+            b-dropdown-item(href="#" @click="alterarSenha()")
+              span Mudar senha
+            b-dropdown-item(href="#" @click="quit()") Sair
+          b-nav-item(v-else href="#" :to="{name:'Login'}")
             span E
               small NTRAR
 </template>
 <script>
-import router from '@/router'
 export default {
   name: 'TopBar',
   props: ['usuario'],
   methods: {
-    go: function (t) { if (this.places(t)) router.push(this.places(t)) },
+    go: function (t) { if (this.places(t)) this.$router.push(this.places(t)) },
+    quit: function () {
+      window.localStorage.removeItem('token')
+      let app = this.$root.$children[0]
+      app.token = null
+      this.$router.push('/login')
+    },
     places: function (name) {
-      let { setor, permissoes, coordenadoria } = this.usr
+      let app = this.$root.$children[0]
+      if (!app) return false
+      let { permissoes, coordenadoria } = app.usuario
+      let setor = coordenadoria ? coordenadoria.setor : {}
       switch (name) {
-        default:
-          return { name }
-        case 'Setor': return { name, params: { setorId: this.usr.setor.id } }
+        default: return { name }
+        case 'Perfil': return { name, params: { userId: this.usr.id } }
+        case 'Setor': return { name, params: { setorId: setor.id } }
         case 'Coordenadoria': return { name, params: { setorId: setor.id, coordId: coordenadoria.id } }
-        case 'AddMeta': return (permissoes.create_meta === true) ? {
-          name,
-          params: { setor: setor.sigla, coordenadoria: coordenadoria.sigla }
-        } : false
+        case 'AddMeta':
+          if (coordenadoria === null) {
+            alert('Não é possível fazer isto, pois você não está registrado em uma coordenadoria.')
+            return false
+          }
+          if (permissoes.meta_create) {
+            return { name, params: { setor: setor.sigla, coordenadoria: coordenadoria.sigla } }
+          }
+          return false
       }
     }
   },
-  data () {
-    // exibir usuario na top-bar por aqui
-    // console.log('usuario:', this.usuario)
-    return {
-      usr: {
-        id: 1,
-        nome: 'Romulo Gabriel Rodrigues',
-        setor: {
-          id: 1,
-          sigla: 'STD'
-        },
-        coordenadoria: {
-          id: 1,
-          sigla: 'DTS'
-        },
-        permissoes: {
-          create_meta: true
-        }
-      }
+  computed: {
+    usrImg: function () {
+      return this.usuario.avatar || '/static/unknown.png'
     }
+  },
+  data () {
+    return { usr: this.usuario }
   }
 }
 </script>
