@@ -81,7 +81,8 @@ export default {
     places: function (name) {
       let app = this.$root.$children[0]
       if (!app) return false
-      let { permissoes, coordenadoria } = app.usuario
+      let permissoes = app.usuario && app.usuario.permissoes ? app.usuario.permissoes : {}
+      let coordenadoria = app.usuario && app.usuario.coordenadoria ? app.usuario.coordenadoria : {}
       let setor = coordenadoria ? coordenadoria.setor : {}
       switch (name) {
         default: return { name }
