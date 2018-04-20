@@ -30,21 +30,29 @@
             v-if="can('meta_create')"
             @click='goToAddMeta'
           ) Criar nova meta
-      b-table(
-        striped
-        stacked='sm'
-        :items='coordenadoria.metas'
-        :fields='fields'
-        @row-clicked='goToMetaDetails'
-      )
+      MetasTable(:items='metas' :cols='fields')
 </template>
 <script>
 import router from '@/router'
 import Formatters from '@/components/Formatters'
+import MetasTable from '@/components/MetasTable'
 import Helpers from '@/components/Helpers'
 import GET_COORDENADORIA from '@/constants/get-coordenadoria'
+const money = v => Helpers.dinheiro()(v) || 'R$0,00'
+const fields = [
+  'titulo',
+  { key: 'responsavel', formatter: v => v ? v.nome : '' },
+  { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
+  {
+    key: 'custo',
+    formatter: (v, k, i) => `
+      ${money(i.custo_realizado)}&nbsp;
+      <small>/${money(i.custo_previsto)}</small>`
+  },
+  { key: 'prazo', formatter: Formatters.prazo() }
+]
 export default {
-  name: 'Coordenadoria',
+  components: { MetasTable },
   methods: {
     can: function (p) {
       let app = this.$root.$children[0]
@@ -78,23 +86,16 @@ export default {
       console.log(nav)
     }
   },
+  computed: {
+    metas: function () {
+      return this.coordenadoria && this.coordenadoria.metas ? this.coordenadoria.metas : []
+    }
+  },
   data () {
-    let money = v => Helpers.dinheiro()(v) || 'R$0,00'
     return {
       loading: 0,
       coordenadoria: {},
-      fields: [
-        'titulo',
-        { key: 'responsavel', formatter: v => v ? v.nome : '' },
-        { key: 'escopo', formatter: (v, k, i) => `${i.escopo_realizado || 0}/${i.escopo_previsto || 0}` },
-        {
-          key: 'custo',
-          formatter: (v, k, i) => `
-            ${money(i.custo_realizado)}&nbsp;
-            <small>/${money(i.custo_previsto)}</small>`
-        },
-        { key: 'prazo', formatter: Formatters.prazo() }
-      ],
+      fields,
       user: { permissoes: { coord_create: true } }
     }
   },
