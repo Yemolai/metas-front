@@ -71,8 +71,8 @@
 import Formatters from '@/components/Formatters'
 import sortMetas from '@/components/sort'
 
-const upperFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1)
-const sortMap = h => ({text: h.label || upperFirst(h.key), value: h.key})
+const upperFirst = str => typeof str === 'string' ? str.charAt(0).toUpperCase() + str.slice(1) : str
+const sortMap = h => (h.key && typeof h === 'object' ? {text: h.label || upperFirst(h.key), value: h.key} : upperFirst(h))
 
 // descrição dos campos da tabela
 const defaultFields = [
