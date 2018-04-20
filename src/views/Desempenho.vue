@@ -4,13 +4,13 @@
     hr
     h4(v-if='loading') Carregando...
     b-row(v-else)
-      b-col(md="10" sm='12')
+      b-col(md="10" sm='8')
         b-row
           //- Barra de progresso de ano
-          b-col(cols='12').year-progress-container
+          b-col.year-progress-container
             year-progress
         b-row
-          b-col(cols='4')
+          b-col(md='6' sm='12')
             //- Seletor de diretoria
             b-form-select.mb-3(
               v-model='form.diretoria'
