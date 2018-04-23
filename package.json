@@ -1,6 +1,6 @@
 {
   "name": "sedop_metas",
-  "version": "1.0.rc1",
+  "version": "1.0.0-rc.1",
   "description": "A SEDOP-PA project to control milestones across internal organization parts",
   "author": "Gabriel <yemolai@gmail.com>",
   "private": true,
