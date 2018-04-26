@@ -1,28 +1,60 @@
 <template lang="pug">
   .hello.container.text-left
     h2 Suas metas
-    b-table(
+    //- b-table(
+    //-   v-if='!loading && usuario.responsabilidade'
+    //-   :fields='fields'
+    //-   :items='usuario.responsabilidade || []'
+    //-   @row-clicked='goToMeta'
+    //-   stacked='md'
+    //-   hover
+    //- )
+    MetasTable(
       v-if='!loading && usuario.responsabilidade'
-      :fields='fields'
       :items='usuario.responsabilidade || []'
-      @row-clicked='goToMeta'
-      stacked='md'
-      hover
+      :cols='fields'
     )
 </template>
 
 <script>
 import gql from 'graphql-tag'
-import Formatters from '@/components/Formatters'
-import Helpers from '@/components/Helpers'
+import moment from 'moment'
+import 'moment/locale/pt-br'
 import router from '@/router'
-import { protect } from '@/components/ProtectRoute'
+import Formatters from '@/components/Formatters'
+import MetasTable from '@/components/MetasTable'
 const fields = [
-  {key: 'titulo', label: 'Título'},
-  {key: 'atualizado', label: 'Atualizado em', formatter: Helpers.timestamp()},
-  {key: 'escopo', formatter: Formatters.escopo},
-  {key: 'prazo', formatter: Formatters.deadline},
-  {key: 'custo', formatter: (v, k, i) => Formatters.cost(i)}
+  {
+    key: 'titulo',
+    label: 'Meta',
+    sortable: true
+  },
+  {
+    key: 'resumo',
+    label: 'Ação/Análise',
+    sortable: true
+  },
+  {
+    key: 'escopo',
+    formatter: Formatters.escopo,
+    sortable: true
+  },
+  {
+    key: 'prazo',
+    formatter: Formatters.deadline,
+    sortable: true
+  },
+  {
+    key: 'custo',
+    formatter: (v, k, i) => Formatters.cost(i),
+    sortable: true
+  },
+  {
+    key: 'updatedAt',
+    label: 'Atualizado',
+    formatter: v => moment(v).format('lll'),
+    sortable: true
+  }
 ]
 export default {
   name: 'Home',
@@ -33,7 +65,8 @@ export default {
       fields
     }
   },
-  beforeRouteEnter: protect,
+  components: { MetasTable },
+  // beforeRouteEnter: protect,
   methods: {
     goToMeta: item => router.push({
       name: 'Meta',
