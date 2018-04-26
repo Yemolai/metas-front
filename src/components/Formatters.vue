@@ -69,21 +69,17 @@ export default {
       if (literal) {
         return 'início<br>' + (predictedStartDate).toLocaleDateString()
       }
-      let descritiveText
       let daysToMilestone = Helpers.getDaysFromDate(predictedStartDate - (new Date()))
       let descritiveDaysToMilestone = `
         <br>
-        ${Math.abs(daysToMilestone)}
-        dia${Helpers.plural(daysToMilestone)}
-        ${daysToMilestone < 0 ? ' atrás' : ''}`
-      if (daysToMilestone > 0) {
-        descritiveText = 'começará em'
+        ${moment(predictedStartDate).fromNow(true)}`
+      if (daysToMilestone > 1) {
+        return `<small>Não iniciado</small>`
       } else if (daysToMilestone < 0) {
-        descritiveText = '<span class="text-danger">começaria</span> '
+        return `<span class="text-danger">deveria iniciar ${descritiveDaysToMilestone} atrás</span>`
       } else {
-        descritiveText = '<span class="text-warning">começa hoje</span>'
+        return `<span class="text-warning">inicia em ${descritiveDaysToMilestone}</span>`
       }
-      return descritiveText + descritiveDaysToMilestone
     } else {
       return '<small>data<br>indefinida</small>'
     }
@@ -150,7 +146,7 @@ export default {
                 <small>(${moment(fim_previsto).format('LL')})</small>`
             }
           } else if (!ir) {
-            return `${(new Date()) > inicio_previsto ? 'Deveria ter começado há' : 'Começará em'}
+            return `${(new Date()) > inicio_previsto ? 'Início atrasado há' : 'Começa em'}
               ${moment(inicio_previsto).fromNow(true)}
               <small>(${moment(inicio_previsto).format('LL')})</small>`
           }
