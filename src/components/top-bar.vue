@@ -23,7 +23,7 @@
               small IRETORIAS
         //- Aqui começa a parte à direita da barra
         b-navbar-nav.ml-auto
-          b-nav-item.mx-2(href="#" @click="go('AddMeta')" v-if="usuario !== null")
+          b-nav-item.mx-2(href="#" @click="go('AddMeta')" v-if="showAddMetaButton")
             span.fa.fa-lg.fa-plus &nbsp;
             span M
             small ETA
@@ -59,7 +59,7 @@
               span Coordenadoria
             b-dropdown-item(href="#" v-if='usuario.coordenadoria' @click="go('Setor')")
               span Diretoria
-            b-dropdown-item(href="#" @click="alterarSenha()")
+            b-dropdown-item(href="#" @click="go('ChangePassword')")
               span Mudar senha
             b-dropdown-item(href="#" @click="quit()") Sair
           b-nav-item(v-else href="#" :to="{name:'Login'}")
@@ -102,6 +102,11 @@ export default {
     }
   },
   computed: {
+    showAddMetaButton: function () {
+      // Só vai exibir o botão de adicionar meta rapidamente se o usuário estiver logado E fizer parte
+      // de uma coordenadoria que seja ligada a um setor
+      return this.usuario !== null && this.usuario.coordenadoria && this.usuario.coordenadoria.setor
+    },
     usrImg: function () {
       return this.usuario.avatar || '/static/unknown.png'
     }
