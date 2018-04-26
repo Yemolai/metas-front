@@ -30,7 +30,7 @@
             v-if="can('meta_create')"
             @click='goToAddMeta'
           ) Criar nova meta
-      MetasTable(:items='metas' :cols='fields')
+      MetasTable(:items='metas' :cols='fields' :row-clicked='goToMetaDetails')
 </template>
 <script>
 import router from '@/router'
