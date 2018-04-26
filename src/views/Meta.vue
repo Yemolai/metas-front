@@ -117,6 +117,8 @@
               ).edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
+      div.text-right
+        b-btn(variant='primary' @click='addSubmeta') Nova submeta
       div(v-if='!loading && isParent')
         b-row
           b-col
@@ -353,6 +355,17 @@ export default {
     }
   },
   methods: {
+    addSubmeta: function () {
+      console.log('pai', this.meta.id)
+      this.$router.push({
+        name: 'AddSubMeta',
+        params: {
+          setor: this.meta.coordenadoria.setor.sigla,
+          coordenadoria: this.meta.coordenadoria.sigla,
+          pai: this.meta.id
+        }
+      })
+    },
     navigateToSubmeta: function (item) {
       this.$router.push({
         name: 'Meta',
@@ -403,10 +416,10 @@ export default {
           value: 'id',
           text: 'nome',
           nullOption: 'Escolha um usuário',
-          formatter: v => { console.log(v); return v ? v.nome : '' }
+          formatter: v => v ? v.nome : ''
         }
       }
-      if (this.isParent) {
+      if (!this.isParent) {
         fields = {
           ...fields,
           escopo_realizado: {title: 'Escopo realizado', type: 'number', formatter: numero()},

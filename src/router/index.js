@@ -110,6 +110,15 @@ const router = new Router({
         requireAuth: true,
         permission: 'meta_create'
       }
+    }, {
+      path: '/:setor(\\w+)/:coordenadoria(\\w+)/:pai(\\d+)/add',
+      name: 'AddSubMeta',
+      component: AddMeta,
+      props: true,
+      meta: {
+        requireAuth: true,
+        permission: 'meta_create'
+      }
     }
   ]
 })

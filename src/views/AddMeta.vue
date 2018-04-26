@@ -1,9 +1,19 @@
 <template lang="pug">
   #add-meta.container.text-left
-    h3 N
-      small OVA META
     h4(v-if='loading').text-left Carregando...
-    b-form(@submit='submit' @reset='reset' v-else).text-left
+    b-form(@submit='submit' @reset='reset' v-if='!loading').text-left
+      h3(v-if='this.pai')
+        span N
+          small OVA SUBMETA de&nbsp;
+        small
+          span {{ this.metaPai.coordenadoria.setor.sigla }}/
+          span {{ this.metaPai.coordenadoria.sigla }}/
+          span {{ (new Date()).getFullYear() }}/
+          span {{ this.metaPai.id }}&nbsp;
+          span - {{ this.metaPai.titulo }}
+      span(v-if='!this.pai')
+        span N
+          small OVA META
       b-row
         b-col(sm='12')
           b-form-group(
@@ -28,8 +38,8 @@
               type='number'
               v-model='escopo_previsto'
               required
-              min='0'
-              step='0.01'
+              :min='0'
+              :step='0.01'
               placeholder='99,9'
             )#form-input-escopo-previsto
         b-col(sm='12' md='3')
@@ -64,9 +74,9 @@
               type='number'
               v-model='custo_previsto'
               required
-              min='0'
-              step='0.01'
-              placeholder='10.00'
+              :min='0'
+              :step='0.01'
+              placeholder='10,00'
             )#form-input-custo-previsto
       b-row
         b-col(sm='12' md='6')
@@ -80,17 +90,17 @@
               v-model='responsavel'
               value-field='id'
             )#form-input-responsavel
-        b-col(sm='12' md='6')
-          b-form-group(
-            label='Meta pai'
-            label-for='form-input-pai'
-            description='Meta pai da qual esta meta é submeta'
-          )
-            b-select(
-              :options='listaMetas'
-              v-model='pai'
-              value-field='id'
-            )
+        //- b-col(sm='12' md='6')
+        //-   b-form-group(
+        //-     label='Meta pai'
+        //-     label-for='form-input-pai'
+        //-     description='Meta pai da qual esta meta é submeta'
+        //-   )
+        //-     b-select(
+        //-       :options='listaMetas'
+        //-       v-model='pai'
+        //-       value-field='id'
+        //-     )
       b-row
         b-col.text-right
           b-btn(
@@ -107,29 +117,44 @@
           ).ml-2.mb-2 Salvar nova meta
 </template>
 <script>
+// parser to create graphql queries
 import gql from 'graphql-tag'
-import router from '@/router'
+
+// graphql pre-baked queries:
 import INSERT_META from '@/constants/insert-meta'
 import GET_USUARIOS from '@/constants/get-usuarios'
 import GET_SETORES from '@/constants/get-setores'
+
+// This method capitalizes a word
+const upperFirst = (str) => (typeof str === 'string')
+  ? str.charAt(0).toUpperCase() + str.slice(1)
+  : str
+
+// Vue object definition
 export default {
-  name: 'AddMeta',
-  data () {
+  name: 'AddMeta', // VIEW NAME
+  data () { // ENCAPSULATED PROPERTIES
     return {
       loading: 0,
       usuarios: [],
-      metas: [],
       titulo: '',
       escopo_previsto: null,
       inicio_previsto: null,
       fim_previsto: null,
       custo_previsto: null,
-      pai: null,
       responsavel: null,
-      autor: null
+      metaPai: null,
+      dis: this
     }
   },
-  computed: {
+  computed: { // COMPUTED FIELDS
+    pai: function () {
+      return this.$route.params && this.$route.params.pai ? this.$route.params.pai : null
+    },
+    autor: function () {
+      let usuario = this.$root.$children[0].usuario
+      return usuario || null
+    },
     listaMetas: function () {
       if (!this.metas) {
         return []
@@ -144,31 +169,27 @@ export default {
     listaUsuarios: function () {
       let lista = this.usuarios.map(usr => ({
         id: usr.id,
-        text: (usr.setor ? usr.setor.sigla : '') + '\\' + usr.nome
+        text: usr.nome.toLowerCase().split(' ')
+          .map(v => upperFirst(v))
+          .reduce((p, a) => p + ' ' + a, '')
       }))
       lista.unshift({id: null, text: '-- Selecione um usuário --'})
       return lista
     },
     diretoria: function () {
-      if (
-        !('setor' in this.$route.params) ||
-        !this.setores ||
-        this.setores.length === 0
-      ) {
-        console.log('Have no setor', this.$route.params, this.setores)
-        return {}
-      }
-      let sigla = this.$route.params.setor
-      return this.setores
-        .filter(setor => setor.sigla === sigla)
-        .reduce((p, a) => a, {})
+      let haveParam = 'setor' in this.$route.params
+      let haveLista = this.setores.length > 0
+      return (!haveParam || !this.setores || !haveLista)
+        ? {}
+        : this.setores
+          .filter(setor => setor.sigla === this.$route.params.setor)
+          .reduce((p, a) => a, {})
     },
     coordenadoria: function () {
       if (
         !('coordenadoria' in this.$route.params) ||
         !('coordenadorias' in this.diretoria)
       ) {
-        console.log('Have no coordenadoria.', this.$route.params, this.diretoria)
         return {}
       }
       let sigla = this.$route.params.coordenadoria
@@ -177,10 +198,10 @@ export default {
         .reduce((p, a) => a, {})
     }
   },
-  methods: {
+  methods: { // METHODS AND FUNCTIONS
     cancelAndGoBack: e => {
       e.preventDefault()
-      router.go(-1)
+      this.$router.go(-1)
     },
     reset: function () {
       this.titulo = ''
@@ -188,14 +209,10 @@ export default {
       this.inicio_previsto = null
       this.fim_previsto = null
       this.custo_previsto = null
-      this.pai = null
       this.responsavel = null
-      this.autor = null
     },
     submit: function (e) {
       e.preventDefault()
-      // ISSO AQUI DEVE SER ALTERADO AO IMPLEMENTAR AUTENTICAÇÃO
-      this.autor = 1
       let variables = {
         titulo: this.titulo,
         escopo_previsto: Number(this.escopo_previsto),
@@ -207,7 +224,6 @@ export default {
         pai: Number(this.pai) || null,
         autor: Number(this.autor) || null
       }
-      console.log('variables', variables)
       let mutation = INSERT_META
       let vm = this
       this.$apollo.mutate({
@@ -219,9 +235,7 @@ export default {
             let err = { error: response.error }
             throw err
           }
-          vm.$apollo.queries.metas.refetch()
-          vm.reset()
-          router.replace({
+          vm.$router.go({
             name: 'Meta',
             params: {
               setor: response.data.addMeta.coordenadoria.setor.sigla,
@@ -241,30 +255,32 @@ export default {
     setores: {
       query: GET_SETORES
     },
-    metas () {
-      let query = gql`
-        query GET_METAS {
-          setores {
+    meta () {
+      const metaQuery = `
+        query GET_META {
+          meta(id: ${this.pai}) {
             id
-            sigla
-            coordenadorias {
+            titulo
+            coordenadoria {
               id
               sigla
-              metas(submetas: false) {
+              setor {
                 id
-                titulo
+                sigla
               }
             }
           }
         }
       `
-      let siglaSetor = this.$route.params.setor
-      let siglaCoordenadoria = this.$route.params.coordenadoria
-      let update = data => data.setores === null ? [] : data.setores
-        .filter(s => s.sigla === siglaSetor)
-        .reduce((p, a) => a.coordenadorias, [])
-        .filter(c => c.sigla === siglaCoordenadoria)
-        .reduce((p, a) => a.metas, [])
+      const emptyMetaQuery = `
+        query GET_META {
+          meta(id: 0) {
+            id
+          }
+        }
+      `
+      const query = this.pai ? gql`${metaQuery}` : gql`${emptyMetaQuery}`
+      const update = v => { this.metaPai = v.meta || null }
       return { query, update }
     }
   }
