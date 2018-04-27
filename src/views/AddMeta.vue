@@ -235,7 +235,7 @@ export default {
             let err = { error: response.error }
             throw err
           }
-          vm.$router.go({
+          vm.$router.replace({
             name: 'Meta',
             params: {
               setor: response.data.addMeta.coordenadoria.setor.sigla,
@@ -243,7 +243,7 @@ export default {
               year: (new Date()).getFullYear(),
               meta: response.data.addMeta.id
             }
-          })
+          }, vm.$router.go(1))
         })
         .catch(err => console.error('Erro:', err, alert('Ocorreu um erro')))
     }

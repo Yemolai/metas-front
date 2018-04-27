@@ -43,10 +43,20 @@
           :empty-filtered-text="empty.filtered"
           stacked="md"
           @filtered="onFiltered"
-          striped
+          hover
           show-empty
         >
-          <!-- Estes span com slot são necessários pra renderizar html nas colunas especificadas -->
+          <template slot="prioridade" slot-scope="data" v-html="data.value">
+            <center style='line-height: 0.5em'>
+              <b-btn class='my-0 mx-0 py-0 px-0' variant='link' size='sm' style='color: #555'>
+                <span class="fa fa-chevron-up"></span>
+              </b-btn>
+              <span class='my-0 mx-0 py-0 px-0'>{{ data.index + 1 }}</span>
+              <b-btn class='my-0 mx-0 py-0 px-0' variant='link' size='sm' style='color: #555'>
+                <span class="fa fa-chevron-down"></span>
+              </b-btn>
+            </center>
+          </template>
           <span slot="escopo" slot-scope="data" v-html="data.value"></span>
           <span slot="prazo" slot-scope="data" v-html="data.value"></span>
           <span slot="custo" slot-scope="data" v-html="data.value"></span>
@@ -77,18 +87,26 @@ const sortMap = h => (h.key && typeof h === 'object' ? {text: h.label || upperFi
 // descrição dos campos da tabela
 const defaultFields = [
   {
+    key: 'prioridade',
+    label: '!'
+  },
+  {
+    key: 'id',
+    label: '#'
+  },
+  {
     key: 'setor',
     formatter: (v, k, i) => i ? `${i.coordenadoria.setor.sigla} / ${i.coordenadoria.sigla}` : '',
     sortable: true
   },
   {
     key: 'titulo',
-    label: 'Meta',
+    label: 'Ação',
     sortable: true
   },
   {
     key: 'resumo',
-    label: 'Ação/Análise',
+    label: 'Análise',
     sortable: true
   },
   {

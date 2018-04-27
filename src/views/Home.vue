@@ -26,12 +26,12 @@ import MetasTable from '@/components/MetasTable'
 const fields = [
   {
     key: 'titulo',
-    label: 'Meta',
+    label: 'Ação',
     sortable: true
   },
   {
     key: 'resumo',
-    label: 'Ação/Análise',
+    label: 'Análise',
     sortable: true
   },
   {

@@ -134,6 +134,10 @@
                 :fields='fields.submetas'
                 @row-clicked='navigateToSubmeta'
               )
+                //- Estes span com slot são necessários pra renderizar html nas colunas especificadas
+                span(slot="escopo" slot-scope="data" v-html="data.value")
+                span(slot="prazo" slot-scope="data" v-html="data.value")
+                span(slot="custo" slot-scope="data" v-html="data.value")
             b-btn(
               block
               size="sm"

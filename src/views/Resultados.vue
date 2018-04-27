@@ -22,8 +22,7 @@
               template(slot='first' selected)
                 option(:value='null' disabled) -- Escolha uma diretoria --
           b-col(v-if='!loading && diretoria !== null' sm='12' md='6').diretoria-nome.hidden-sm
-            p.text-left
-              span {{ setor ? setor.nome || '' : '' }}
+            p.text-left {{ setor ? setor.nome || '' : '' }}
       b-col(md='2' sm='4').hidden-md-down
         center
           //- Esse componente ainda não é dinâmico
@@ -74,7 +73,7 @@ export default {
       let params = this.$route.params
       let sigla = params && params.setor ? params.setor : null
 
-      let id = this.setores && this.setores instanceof Array && sigla
+      let id = this.setores && (this.setores instanceof Array) && sigla
         ? this.setores
           .filter(s => s.sigla === sigla)
           .reduce((p, a) => a.id, null)
@@ -92,15 +91,23 @@ export default {
         return []
       }
       let Cs = this.setor.coordenadorias
-      return Cs.map(c => (c.metas || [])).reduce((p, a) => p.concat(a), [])
+      return Cs
+        .map(c => (c.metas || []))
+        .reduce((p, a) => p.concat(a), [])
     },
     setorId: {
       get: function () {
         return this.diretoria
       },
       set: function (newValue) {
-        let setor = this.setores.filter(s => s.id === newValue).reduce((p, a) => a.sigla, this.sigla)
-        this.$router.push({ name: 'PainelResultados', params: { setor, page: this.page } })
+        let setor = this.setores
+          .filter(s => s.id === newValue)
+          .reduce((p, a) => a.sigla, this.sigla)
+        this.$router
+          .push({
+            name: 'PainelResultados',
+            params: { setor, page: this.page }
+          })
         this.diretoria = newValue
       }
     }
@@ -113,8 +120,7 @@ export default {
       setores: [], // list with all instances of setor
       setor: {}, // selected setor instance
       diretoria: (this.setorId || null),
-      sigla,
-      window // window reference
+      sigla
     }
   },
   apollo: {
@@ -125,7 +131,10 @@ export default {
         return (this.diretoria === null) ? GET_NULLABLE_META : GET_METAS_SETOR
       },
       variables: function () {
-        return { submetas: false, setorId: isNaN(Number(this.diretoria)) ? 0 : this.diretoria }
+        return {
+          submetas: false,
+          setorId: isNaN(Number(this.diretoria)) ? 0 : this.diretoria
+        }
       }
     }
   }
