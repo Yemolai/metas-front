@@ -38,7 +38,7 @@
       b-col(md='2' sm='4').hidden-md-down
         center
           ScopeMeter(:lista-de-metas='metas')
-      b-col(v-if="!loading && setor && 'nome' in setor" sm='12').visible-sm
+      b-col(v-if="!loading && diretoria && 'nome' in diretoria" sm='12').visible-sm
         h4 {{ setor ? setor.sigla || '' : '' }} - {{ setor ? setor.nome || '' : '' }}
       b-col(v-if="!loading && coordenadoria && 'nome' in coordenadoria" sm='12').visible-sm
         h4 {{ coordenadoria ? coordenadoria.sigla || '' : '' }} - {{ coordenadoria ? coordenadoria.nome || '' : '' }}
@@ -58,139 +58,158 @@ import ScopeMeter from '@/components/ScopeMeter'
 import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
+const logging = true
+const log = (...args) => logging ? console.log(...args) : null
 
 export default {
-  name: 'painel-de-desempenho',
+  name: 'PainelDesempenho',
   components: {
     YearProgress,
     ScopeMeter,
     MetasTable
   },
   mounted () {
-    console.log('mounted')
-    this.updateSelected()
-  },
-  watch: {
-    '$route.params.setor': function (newValue, oldValue) {
-      console.log('changed param setor', newValue, oldValue)
-      if (newValue !== oldValue) {
-        console.log('newSetor !== oldSetor')
-        this.updateSelected()
-      }
-    },
-    '$route.params.coordenadoria': function (newValue, oldValue) {
-      console.log('changed param coordenadoria')
-      if (newValue !== oldValue) {
-        this.updateSelected()
+    let params = this.$route.params
+    if (params) {
+      let diretoria = params.setor
+      let coordenadoria = params.coordenadoria
+      let page = params.page
+      if (diretoria) {
+        this.diretoria = diretoria
+        if (coordenadoria) {
+          this.coordenadoria = coordenadoria
+          if (page) {
+            this.setPage(page)
+          }
+        }
       }
     }
   },
-  methods: { // d para diretoria; dc para diretorias com coordenadorias e c para coordenadorias
-    updateParams: function (params) {
-      console.log('updateParams')
-      let newParams = Object.assign(this.$route.params, params)
-      this.$router.push({ name: 'PainelDesempenho', newParams })
+  watch: {
+    setorId: function (newValue, oldValue) {
+      log('setorId changed:', oldValue, '→', newValue)
+      this.diretoria = newValue
     },
+    diretoria: function (newDiretoria, oldDiretoria) {
+      log('diretoria changed:', oldDiretoria, '→', newDiretoria)
+      if (newDiretoria && newDiretoria !== oldDiretoria) {
+        this.updateParams({ setor: newDiretoria.sigla, coordenadoria: null })
+        this.coordenadoriaId = null
+      }
+    },
+    coordenadoriaId: function (newValue, oldValue) {
+      log('coordenadoriaId changed:', oldValue, '→', newValue)
+      this.coordenadoria = newValue
+    },
+    coordenadoria: function (newCoordenadoria, oldCoordenadoria) {
+      log('coordenadoria changed:', oldCoordenadoria, '→', newCoordenadoria)
+      if (newCoordenadoria && newCoordenadoria !== oldCoordenadoria) {
+        this.updateParams({ coordenadoria: newCoordenadoria.sigla })
+      }
+    },
+    page: function (page, oldPage) {
+      log('page changed:', oldPage, '→', page)
+      if (page !== oldPage) {
+        this.updateParams({ page })
+      }
+    }
+  },
+  methods: {
+    updateMetas: function () {
+      let metas = this.coordenadoria === null ? [] : this.coordenadoria.metas || []
+      log('updating metas with', metas)
+      Object.assign(this, { metas })
+    },
+    // método para atualizar os parâmetros atuais da rota como estado
+    updateParams: function (newParams) {
+      let params = Object.assign(this.$route.params, newParams)
+      log('update params:', this.$route.params, '→', params)
+      this.$router.push({ name: 'PainelDesempenho', params })
+    },
+    // método para definir a página no estado como parâmetro
     setPage: function (page) {
       console.log('setPage')
       if (!isNaN(Number(page)) && page > 1) {
         this.page = page
         this.updateParams({ page })
       }
-    },
-    updateSelected: function () {
-      console.log('updateSelected')
-      let sid = this.setores && (this.setores instanceof Array) && this.siglaSetor
-        ? this.setores
-          .filter(s => s.sigla === this.siglaSetor)
-          .reduce((p, a) => a.id, null)
-        : null
-      let cid = this.setores && (this.setores instanceof Array) && this.siglaCoordenadoria && sid
-        ? this.setores
-          .filter(s => s.sigla === this.siglaSetor)
-          .reduce((p, a) => a.coordenadorias, [])
-          .filter(c => c.sigla === this.siglaCoordenadoria)
-          .reduce((p, a) => a.id, null)
-        : null
-      this.setorId = sid
-      console.log('this.setorId:', this.setorId)
-      this.coordenadoriaId = cid
-      console.log('this.coordenadoriaId:', this.coordenadoriaId)
     }
   },
   computed: {
-    page: function () {
-      console.log('page')
-      return this.$route.params ? this.$route.params.page : 1
-    },
-    metas: function () {
-      console.log('metas')
-      if (this.diretoria === null || this.loading === 1) {
-        return []
-      }
-      if (this.coordenadoria === null || this.loading === 1) {
-        return []
-      }
-      return this.setores
-        .filter(s => s.id === this.setor)
-        .reduce((p, a) => a.coordenadorias, [])
-        .filter(c => c.id === this.coordenadoriaId)
-        .reduce((p, a) => a.metas, [])
-    },
-    // @param :setor?
-    // identificador numérico do setor ligado ao parâmetro
-    setorId: {
+    diretoria: {
       get: function () {
-        console.log('get setorId', this.diretoria)
-        return this.diretoria
+        return !this.loading && this.setores // se tivermos setores carregados
+          ? this.setorSelecionado
+          : null // se não, retorna objeto vazio
       },
       set: function (newValue) {
-        console.log('set setorId:', newValue)
-        this.diretoria = newValue
+        if (!this.loading && this.setores) {
+          let id = isNaN(Number(newValue)) ? 0 : Number(newValue)
+          let sigla = typeof newValue === 'string' ? newValue : null
+          let setor = null
+          if (id !== 0) {
+            setor = this.setores
+              .filter(s => Number(s.id) === id)
+              .reduce((p, a) => a, null)
+          } else if (sigla !== null) {
+            setor = this.setores
+              .filter(s => s.sigla === sigla)
+              .reduce((p, a) => a, null)
+          }
+          this.setorSelecionado = setor
+        }
+        this.updateMetas()
       }
     },
-    // @param :coordenadoria?
-    // identificador numérico da coordenadoria ligado ao parâmetro
-    coordenadoriaId: {
-      get: function () {
-        console.log('get coordenadoriaId', this.coordenadoria)
-        return this.coordenadoria
-      },
-      set: function (newValue) {
-        let coordenadoria = this.setores
-          .filter(s => s.id === this.setorId)
-          .reduce((p, a) => a.coordenadorias, [])
-          .filter(c => c.id === newValue)
-          .reduce((p, a) => a.id, this.siglaCoordenadoria)
-        this.$router
-          .push({
-            name: 'PainelDesempenho',
-            params: { setor: this.setorId, coordenadoria, page: this.page }
-          })
-        this.coordenadoria = newValue
-      }
-    },
-    // lista de coordenadorias para ser usado no dropdown
     coordenadorias: function () {
-      return !this.loading && this.setores && this.diretoria
-        ? this.setores
-          .filter(s => s.id === this.diretoria)
-          .reduce((p, a) => a.coordenadorias, {}) || []
-        : []
+      return this.diretoria ? this.diretoria.coordenadorias || [] : []
+    },
+    coordenadoria: {
+      get: function () {
+        return !this.loading && this.setorSelecionado && this.coordenadoriaSelecionada
+          ? this.coordenadoriaSelecionada
+          : null
+      },
+      set: function (newValue) {
+        log('set coordenadoria =', newValue)
+        if (!this.loading && this.setor) {
+          let id = isNaN(Number(newValue)) ? 0 : Number(newValue)
+          let sigla = typeof newValue === 'string' ? newValue : null
+          let coordenadorias = this.setor ? this.setor.coordenadorias || [] : []
+          log('coordenadorias:', coordenadorias)
+          let coordenadoria = null
+          if (id !== 0) {
+            coordenadoria = coordenadorias
+              .filter(c => Number(c.id) === id)
+              .reduce((p, a) => a, null)
+          } else if (sigla !== null) {
+            coordenadoria = coordenadorias
+              .filter(c => c.sigla === sigla)
+              .reduce((p, a) => a, null)
+          }
+          this.coordenadoriaSelecionada = coordenadoria
+        }
+        this.updateMetas()
+      }
+    },
+    // retorna a página atual
+    page: function () {
+      return this.$route.params ? this.$route.params.page : 1
     }
   },
   data () {
-    let params = this.$route.params
-    let siglaSetor = params && params.setor ? params.setor : null
-    let siglaCoordenadoria = params && params.coordenadoria ? params.coordenadoria : null
     return {
       loading: 0,
-      setores: [],
-      setor: {},
-      diretoria: (this.setorId || null),
-      coordenadoria: (this.coordenadoriaId || null),
-      siglaSetor,
-      siglaCoordenadoria
+      sortDesc: true,
+      setores: [], // lista de setores do banco de dados
+      setorSigla: null, // sigla do setor selecionada
+      coordenadoriaSigla: null, // sigla da coordenadoria selecionada
+      setorId: null,
+      coordenadoriaId: null,
+      setorSelecionado: null,
+      coordenadoriaSelecionada: null,
+      metas: [],
+      setor: null
     }
   },
   apollo: {
@@ -198,12 +217,12 @@ export default {
     setor: {
       query: function () {
         let GET_NULLABLE_META = gql`{ setor(id: 0) {id} }`
-        return (this.diretoria === null) ? GET_NULLABLE_META : GET_METAS_SETOR
+        return !this.setorSelecionado ? GET_NULLABLE_META : GET_METAS_SETOR
       },
       variables: function () {
         return {
           submetas: false,
-          setorId: isNaN(Number(this.diretoria)) ? 0 : this.diretoria
+          setorId: this.setorSelecionado ? this.setorSelecionado.id : 0
         }
       }
     }
