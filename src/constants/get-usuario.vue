@@ -46,6 +46,7 @@ export default gql`
         own_atual_update
         own_atual_delete
       }
+      createdAt
     }
   }
 `

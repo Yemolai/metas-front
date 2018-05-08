@@ -14,7 +14,8 @@
           type="password"
           :state='authState'
           v-model='password'
-        )#senha-atual
+          autocomplete='current-password'
+        )#current-password
       b-form-group(
         description="insira a nova senha"
         label="Nova senha"
@@ -25,7 +26,7 @@
       ).grupo-nova-senha
         b-form-input(
           :state='newPasswordCheck'
-        )
+        )#new-password
 </template>
 <script>
 export default {
@@ -35,7 +36,7 @@ export default {
       return this.newPassword === this.newPasswordRepeat
     },
     authState: function () {
-      return password !== null
+      return this.password !== null
     },
     invalidNewPasswordReason: function () {
       switch (this.newPasswordProblem) {

@@ -21,6 +21,7 @@
                 type="text"
                 v-model="username"
                 placeholder="nome.sobrenome"
+                autocomplete="username"
                 required
               )#username-field-input
             b-form-group(
@@ -31,6 +32,7 @@
                 type="password"
                 v-model="password"
                 placeholder="***************"
+                autocomplete="current-password"
                 required
               )#password-field-input
             b-row

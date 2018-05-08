@@ -69,14 +69,19 @@ export default {
     MetasTable
   },
   mounted () {
+    log('@mounted!')
+    log(this.loading ? 'still loading' : 'already loaded', '@mounted')
     let params = this.$route.params
     if (params) {
+      log('params:', params)
       let diretoria = params.setor
       let coordenadoria = params.coordenadoria
       let page = params.page
       if (diretoria) {
+        log('diretoria:', diretoria)
         this.diretoria = diretoria
         if (coordenadoria) {
+          log('coordenadoria:', coordenadoria)
           this.coordenadoria = coordenadoria
           if (page) {
             this.setPage(page)
@@ -94,7 +99,9 @@ export default {
       log('diretoria changed:', oldDiretoria, '→', newDiretoria)
       if (newDiretoria && newDiretoria !== oldDiretoria) {
         this.updateParams({ setor: newDiretoria.sigla, coordenadoria: null })
-        this.coordenadoriaId = null
+        if (oldDiretoria !== null || this.coordenadoriaId !== null) {
+          this.coordenadoriaId = null
+        }
       }
     },
     coordenadoriaId: function (newValue, oldValue) {
@@ -146,6 +153,7 @@ export default {
         if (!this.loading && this.setores) {
           let id = isNaN(Number(newValue)) ? 0 : Number(newValue)
           let sigla = typeof newValue === 'string' ? newValue : null
+          log('set diretoria from', ...(id ? ['id:', id] : ['sigla:', sigla]))
           let setor = null
           if (id !== 0) {
             setor = this.setores
@@ -155,7 +163,9 @@ export default {
             setor = this.setores
               .filter(s => s.sigla === sigla)
               .reduce((p, a) => a, null)
+            this.setorId = setor ? setor.id : null
           }
+          log('new setor:', setor)
           this.setorSelecionado = setor
         }
         this.updateMetas()
@@ -179,14 +189,18 @@ export default {
           log('coordenadorias:', coordenadorias)
           let coordenadoria = null
           if (id !== 0) {
+            log('set diretoria from', 'id:', id)
             coordenadoria = coordenadorias
               .filter(c => Number(c.id) === id)
               .reduce((p, a) => a, null)
           } else if (sigla !== null) {
+            log('set diretoria from', 'sigla:', sigla)
             coordenadoria = coordenadorias
               .filter(c => c.sigla === sigla)
               .reduce((p, a) => a, null)
+            this.coordenadoriaId = coordenadoria ? coordenadoria.id : null
           }
+          log('new coordenadoria:', coordenadoria)
           this.coordenadoriaSelecionada = coordenadoria
         }
         this.updateMetas()

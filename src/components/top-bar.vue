@@ -53,7 +53,7 @@
               b-img.user-avatar(:src="usrImg")
               span &nbsp;
               span(v-if="usuario.usuario") {{ usuario.usuario.toUpperCase() }}
-            b-dropdown-item(href="#" @click="go('Perfil')")
+            b-dropdown-item(href="#" @click="go('User')")
               span Perfil
             b-dropdown-item(href="#" v-if='usuario.coordenadoria' @click="go('Coordenadoria')")
               span Coordenadoria

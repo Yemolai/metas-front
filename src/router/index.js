@@ -1,11 +1,14 @@
+/* Base libs: */
 import Vue from 'vue'
 import Router from 'vue-router'
+
 /* Views: */
 import AddCoordenadoria from '@/views/AddCoordenadoria'
 import AddMeta from '@/views/AddMeta'
 import AddSetor from '@/views/AddSetor'
 import AddUser from '@/views/AddUser'
 import Coordenadoria from '@/views/Coordenadoria'
+import ChangePassword from '@/views/ChangePassword'
 import Home from '@/views/Home'
 import ListaDiretorias from '@/views/Diretorias'
 import Login from '@/views/Login'
@@ -13,7 +16,7 @@ import Meta from '@/views/Meta'
 import Painel from '@/views/Painel'
 import PainelDesempenho from '@/views/Desempenho'
 import PainelResultados from '@/views/Resultados'
-import Perfil from '@/views/Perfil'
+import User from '@/views/User'
 import Setor from '@/views/Setor'
 
 Vue.use(Router)
@@ -27,31 +30,42 @@ const router = new Router({
       meta: { // meta-fields
         requireAuth: true // flag de rota protegida
       }
-    },
-    {
+    }, {
       path: '/login',
       name: 'Login',
       component: Login
-    },
-    {
-      path: '/user/:userId(\\d+)',
-      name: 'Perfil',
-      component: Perfil,
-      props: true
-    },
-    {
+    }, {
       path: '/diretorias',
       name: 'Diretorias',
       component: ListaDiretorias
-    },
-    {
+    }, {
       path: '/painel/',
       name: 'Painel',
       component: Painel
     }, {
+      path: '/user/',
+      name: 'User',
+      component: User,
+      props: true,
+      meta: {
+        requireAuth: true
+      }
+    }, {
+      path: '/user/:userId(\\d+)',
+      name: 'UserProfile',
+      component: User,
+      props: true
+    }, {
       path: '/user/add',
       name: 'AddUser',
       component: AddUser,
+      meta: {
+        requireAuth: true
+      }
+    }, {
+      path: '/user/passwd',
+      name: 'ChangePassword',
+      component: ChangePassword,
       meta: {
         requireAuth: true
       }
