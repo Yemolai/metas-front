@@ -41,10 +41,10 @@
       b-row.mb-3
         b-col
           b-card(title='Prazos' border-variant="light")
-            p.card-text x9
+            p.card-text.text-muted Funcionalidade ainda indisponível
         b-col
           b-card(title='Últimas atualizações' border-variant="light")
-            p.card-text lista
+            p.card-text.text-muted Funcionalidade ainda indisponível
       b-row.mb-3
         b-col
           b-card(title='Permissões' border-variant="light")
@@ -119,7 +119,6 @@ const GET_METAS_USUARIO = gql`
   }
 `
 
-
 export default {
   data () {
     return {
@@ -155,7 +154,9 @@ export default {
       return arr
     },
     emAndamento: function () {
-      return 0
+      return this.metas
+        .filter(m => m.escopo_realizado > 0 && m.escopo_realizado < m.escopo_previsto)
+        .length
     },
     progresso: function () {
       if (this.metas.length > 0) {
@@ -165,15 +166,16 @@ export default {
             return isNaN(v) ? 0 : v
           })
           .reduce((p, a) => (p + a), 0)
-        let mid = sum / this.metas.length
+        let mid = (sum / this.metas.length) * 100
         let midText = mid ? num(mid) : '0,00'
         return midText
-      } else {
-        return '0,00'
       }
+      return '0,00'
     },
     concluidas: function () {
-      return 0
+      return this.metas
+        .filter(m => m.escopo_previsto > 0 && m.escopo_realizado >= m.escopo_previsto)
+        .length
     },
     ano: function () {
       return (new Date()).getFullYear()
@@ -188,7 +190,7 @@ export default {
           let app = this.$root.$children[0]
           let usuario = app.usuario || null
           if (this.$route.params && this.$route.params.userId) {
-            return this.$route.params.userId
+            return {userId: this.$route.params.userId}
           } else if (app && usuario) {
             return { userId: usuario.id }
           } else {

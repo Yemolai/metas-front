@@ -5,9 +5,9 @@
       b-form-group(
         description="confirme sua senha atual"
         label="Senha"
-        label-for="senha-atual"
+        label-for="current-password"
         invalid-feedback="Senha incorreta"
-        valid-feedback="Senha correta, prossiga"
+        valid-feedback="✔"
         :feedback='authState'
       ).grupo-senha-atual
         b-form-input(
@@ -19,16 +19,37 @@
       b-form-group(
         description="insira a nova senha"
         label="Nova senha"
-        label-for="senha-nova"
+        label-for="new-password"
         :invalid-feedback='invalidNewPasswordReason'
-        valid-feedback="Nova senha aceita como válida"
+        valid-feedback="✔"
         :feedback='newPasswordCheck'
       ).grupo-nova-senha
         b-form-input(
           :state='newPasswordCheck'
+          type="password"
+          :v-model='newPassword'
         )#new-password
+      b-form-group(
+        description="insira a nova senha"
+        label="Repita a nova senha"
+        label-for="repeat-password"
+        invalid-feedback='Não está igual ao campo acima'
+        valid-feedback="✔"
+        :feedback='isNewPasswordRepeated'
+      ).grupo-nova-senha
+        b-form-input(
+          :state='repeatPasswordCheck'
+          type="password"
+          :v-model='newPasswordRepeat'
+        )#repeat-password
+      b-button(
+        :disabled='buttonDisabled'
+        :variant='buttonVariant'
+        :size='lg'
+      ) {{ buttonText }}
 </template>
 <script>
+import axios from 'axios'
 export default {
   name: 'change-password',
   computed: {
@@ -54,13 +75,18 @@ export default {
     },
     newPasswordCheck: function () {
       if (this.authState) {
-
+        return true
       }
       return null
+    },
+    buttonDisabled: function () {
+      return true
     }
   },
   data () {
     return {
+      buttonVariant: 'outline-secondary',
+      buttonText: 'Preencha os campos',
       password: null,
       newPassword: null,
       newPasswordRepeat: null,
@@ -71,5 +97,7 @@ export default {
 }
 </script>
 <style scoped>
-  /* */
+  .changePasswordView {
+    max-width: 25em
+  }
 </style>

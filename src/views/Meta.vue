@@ -8,8 +8,8 @@
             router-link(:to="{name: 'Setor', params: {setorId}}")
               span {{ meta.coordenadoria.setor.sigla }}/
             router-link(:to="{name: 'Coordenadoria', params: {setorId, coordId}}")
-              span {{ meta.coordenadoria.sigla}}/
-            span {{ new Date(meta.createdAt).getFullYear()}}/
+              span {{ meta.coordenadoria.sigla }}/
+            span {{ new Date(meta.createdAt).getFullYear() }}/
             span {{ meta.id }}
         small(v-if='!loading && meta && !isParent && isChild' href="#")
           router-link(:to="{path: this.meta.pai.id}") Submeta de {{ paiUrl }}
@@ -117,7 +117,7 @@
               ).edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
-      div.text-right
+      div.text-right(v-if='!loading && !isChild')
         b-btn(variant='primary' @click='addSubmeta') Nova submeta
       div(v-if='!loading && isParent')
         b-row
