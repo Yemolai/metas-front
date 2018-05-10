@@ -2,16 +2,23 @@
   b-container.changePasswordView
     h2 Alterar senha
     b-form(action="#" @submit="change")
+      b-form-input(
+        :hidden='true'
+        v-model='username'
+        autocomplete='username'
+        :disabled='true'
+      )#username
       b-form-group(
         description="confirme sua senha atual"
         label="Senha"
         label-for="current-password"
         invalid-feedback="Senha incorreta"
         valid-feedback="✔"
-        :feedback='authState'
+        :feedback="'' + authState"
       ).grupo-senha-atual
         b-form-input(
           type="password"
+          @change='validatePassword'
           :state='authState'
           v-model='password'
           autocomplete='current-password'
@@ -20,7 +27,8 @@
         description="insira a nova senha"
         label="Nova senha"
         label-for="new-password"
-        :invalid-feedback='invalidNewPasswordReason'
+        :disabled="'' + !this.authState"
+        invalid-feedback='✕'
         valid-feedback="✔"
         :feedback='newPasswordCheck'
       ).grupo-nova-senha
@@ -28,54 +36,67 @@
           :state='newPasswordCheck'
           type="password"
           :v-model='newPassword'
+          autocomplete='new-password'
         )#new-password
       b-form-group(
         description="insira a nova senha"
         label="Repita a nova senha"
         label-for="repeat-password"
-        invalid-feedback='Não está igual ao campo acima'
+        invalid-feedback='✕'
         valid-feedback="✔"
         :feedback='isNewPasswordRepeated'
       ).grupo-nova-senha
         b-form-input(
-          :state='repeatPasswordCheck'
+          :state='isNewPasswordRepeated'
           type="password"
           :v-model='newPasswordRepeat'
+          autocomplete='new-password'
         )#repeat-password
       b-button(
         :disabled='buttonDisabled'
         :variant='buttonVariant'
-        :size='lg'
+        size='lg'
       ) {{ buttonText }}
 </template>
 <script>
 import axios from 'axios'
+import cfg from '@/cfg.json'
 export default {
   name: 'change-password',
+  methods: {
+    validatePassword: function (senha) {
+      if (senha === null) {
+        this.authState = null
+        return false
+      }
+      if (!this.verifyingPassword) {
+        let reqOptions = { // requisition options
+          'Content-Type': 'application/json', // needed to explicitly define payload as json
+          responseType: 'json' // needed to explicitly define response as json
+        }
+        let vm = this
+        this.verifyingPassword = true
+        let credentials = { usuario: this.username, senha }
+        axios.post(cfg.server + '/auth/login', credentials, reqOptions)
+          .then(response => {
+            vm.verifyingPassword = false
+            vm.authState = 'token' in response.data
+          })
+      }
+    },
+    change: function () {
+      if (this.password) {
+        console.log('enviou!')
+      }
+    }
+  },
   computed: {
     isNewPasswordRepeated: function () {
-      return this.newPassword === this.newPasswordRepeat
-    },
-    authState: function () {
-      return this.password !== null
-    },
-    invalidNewPasswordReason: function () {
-      switch (this.newPasswordProblem) {
-        case 'TOO_SHORT':
-          return 'Senha muito curta'
-        case 'TOO_SIMPLE':
-          return 'Senha muito simples (use numeros e letras maiúsculas e minúsculas)'
-        case 'EMPTY':
-          return 'Senha "vazia" não é permitida'
-        case 'NUMERIC':
-          return 'Senha não deve ser composta apenas por números'
-        default:
-          return 'Senha fraca'
-      }
+      return this.newPassword && this.newPassword === this.newPasswordRepeat
     },
     newPasswordCheck: function () {
       if (this.authState) {
-        return true
+        return this.newPassword ? (this.newPassword.length > 5) : null
       }
       return null
     },
@@ -84,7 +105,11 @@ export default {
     }
   },
   data () {
+    let app = this.$root.$children[0]
     return {
+      verifyingPassword: false,
+      authState: null,
+      username: app.usuario.usuario,
       buttonVariant: 'outline-secondary',
       buttonText: 'Preencha os campos',
       password: null,
