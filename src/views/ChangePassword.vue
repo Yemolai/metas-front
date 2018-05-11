@@ -60,7 +60,15 @@
 </template>
 <script>
 import axios from 'axios'
+import gql from 'graphql-tag'
 import cfg from '@/cfg.json'
+
+const CHANGE_PASSWORD_MUTATION = gql`
+  mutation ($novaSenha: String!) {
+    changePassword
+  }
+`
+
 export default {
   name: 'change-password',
   methods: {
@@ -86,7 +94,10 @@ export default {
     },
     change: function () {
       if (this.password) {
-        console.log('enviou!')
+        let mutation = CHANGE_PASSWORD_MUTATION
+        this.$apollo.mutate({
+          mutation
+        })
       }
     }
   },
