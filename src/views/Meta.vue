@@ -150,6 +150,7 @@
             )
               span(v-if="collapse.submetas").fa.fa-chevron-up
               span(v-else).fa.fa-chevron-down
+      //- TABELA ATUALIZAÇÕES ################################################################################
       b-row
         b-col
           h4 Atualizações
@@ -161,7 +162,7 @@
               small
               stacked='md'
               :sort-desc='true'
-              :items='meta.atualizacoes'
+              :items='atualizacoes'
               :fields='fields.atualizacoes'
               sort-by='id'
             )
@@ -179,6 +180,8 @@
             @click="collapse.atualizacoes = !collapse.atualizacoes")
             span(v-if="collapse.atualizacoes").fa.fa-chevron-up
             span(v-else).fa.fa-chevron-down
+      //- fim da tabela atualizações #########################################################################
+    //- DEFINIÇÃO DO MODAL DE EDIÇÃO DE PROPRIEDADES #########################################################
     b-modal(
       size='lg'
       ref='updateModal'
@@ -232,24 +235,10 @@ import DELETE_META from '@/constants/delete-meta'
 import GET_USUARIOS from '@/constants/get-usuarios'
 import Helpers from '@/components/Helpers'
 import Formatters from '@/components/Formatters'
+import moment from 'moment'
 const { numero, data, dinheiro } = Helpers
 const { escopo, cost, deadline } = Formatters
-const tableFields = [
-  {key: 'createdAt', label: 'Em', formatter: data()},
-  {key: 'autor', label: 'Por', formatter: v => v ? v.nome : ''},
-  {key: 'titulo', label: 'Objetivo'},
-  'resumo',
-  'estado',
-  {key: 'escopo_previsto', label: 'Escopo previsto', formatter: numero()},
-  {key: 'escopo_realizado', label: 'Escopo realizado', formatter: numero()},
-  {key: 'inicio_previsto', label: 'Início previsto', formatter: data()},
-  {key: 'fim_previsto', label: 'Fim previsto', formatter: data()},
-  {key: 'inicio_realizado', label: 'Início', formatter: data()},
-  {key: 'fim_realizado', label: 'Fim', formatter: data()},
-  {key: 'custo_previsto', label: 'Custo previsto', formatter: dinheiro()},
-  {key: 'custo_realizado', label: 'Custo efetivo', formatter: dinheiro()},
-  'apagar'
-]
+const tableFields = [{key: 'em', formatter: v => moment(v).format('LLL')}, 'por', 'campo', 'de', 'para', 'motivo', 'apagar']
 let money = v => Helpers.dinheiro()(v) || 'R$0,00'
 const subFields = [
   {key: 'titulo', label: 'Título', formatter: (v, k, i) => v},
@@ -291,6 +280,41 @@ export default {
     }
   },
   computed: {
+    atualizacoes: function () {
+      // validação dos dados para garantir um fallback em caso de problemas (falta de dados)
+      if (!(this.meta && this.meta.atualizacoes && this.meta.atualizacoes.length > 0)) {
+        return []
+      }
+      // Array: cópia local dos dados recuperados do banco de dados como relacionamento da meta
+      let atualizacoes = this.meta.atualizacoes
+      let controlHeaders = ['__typename', 'id', 'meta', 'motivo', 'createdAt', 'updatedAt', 'autor']
+      let datas = ['inicio_previsto', 'fim_previsto', 'inicio_realizado', 'fim_realizado']
+      let numeros = ['escopo_previsto', 'escopo_realizado']
+      let monetarios = ['custo_previsto', 'custo_realizado']
+      let headers = Object.keys(atualizacoes[0]).filter(h => controlHeaders.indexOf(h) < 0)
+      return atualizacoes.map((atualizacao, idx, atualizacoes) => {
+        let campo = headers
+          .filter(h => atualizacao[h] !== null)
+          .reduce((p, a) => a, null)
+        let para = campo ? atualizacao[campo] : null
+        if (numeros.indexOf(campo) >= 0) {
+          para = numero()(para)
+        } else if (datas.indexOf(campo) >= 0) {
+          para = moment(para).format('LL')
+        } else if (monetarios.indexOf(campo) >= 0) {
+          para = dinheiro()(para)
+        }
+        return {
+          id: atualizacao.id,
+          em: atualizacao.createdAt,
+          por: atualizacao.autor ? atualizacao.autor.nome : '',
+          campo: campo.split('_').map((v, k) => k === 0 ? v.charAt(0).toUpperCase() + v.substring(1) : v).join(' '),
+          de: null,
+          para,
+          motivo: atualizacao.motivo
+        }
+      })
+    },
     canUpdate: function () {
       let app = this.$root.$children[0]
       if (!app) {
@@ -476,6 +500,8 @@ export default {
       } else {
         value = JSON.stringify(newValue)
       }
+      let app = this.$root.$children[0]
+      let usuario = app.usuario
       let vm = this
       this.$apollo.mutate({
         mutation: gql`
@@ -483,6 +509,7 @@ export default {
             addAtualizacao(
               meta: ${metaId},
               motivo: "${reason}",
+              autor: ${usuario.id}
               ${field}: ${value}) {
               id
             }

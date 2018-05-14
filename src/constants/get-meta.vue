@@ -65,6 +65,7 @@ export default gql`
       }
       atualizacoes {
         id
+        motivo
         titulo
         resumo
         estado
