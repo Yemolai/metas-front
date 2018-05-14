@@ -1,7 +1,7 @@
 <template lang="pug">
   b-container.changePasswordView
     h2 Alterar senha
-    b-form(action="#" @submit="change")
+    b-form(action="#")
       b-form-input(
         :hidden='true'
         v-model='username'
@@ -30,12 +30,12 @@
         :disabled="'' + !this.authState"
         invalid-feedback='✕'
         valid-feedback="✔"
-        :feedback='newPasswordCheck'
+        :feedback="'' + newPasswordCheck"
       ).grupo-nova-senha
         b-form-input(
           :state='newPasswordCheck'
           type="password"
-          :v-model='newPassword'
+          v-model='newPassword'
           autocomplete='new-password'
         )#new-password
       b-form-group(
@@ -44,15 +44,16 @@
         label-for="repeat-password"
         invalid-feedback='✕'
         valid-feedback="✔"
-        :feedback='isNewPasswordRepeated'
+        :feedback="'' + isNewPasswordRepeated"
       ).grupo-nova-senha
         b-form-input(
           :state='isNewPasswordRepeated'
           type="password"
-          :v-model='newPasswordRepeat'
+          v-model='newPasswordRepeat'
           autocomplete='new-password'
         )#repeat-password
       b-button(
+        @click='change'
         :disabled='buttonDisabled'
         :variant='buttonVariant'
         size='lg'
@@ -64,8 +65,8 @@ import gql from 'graphql-tag'
 import cfg from '@/cfg.json'
 
 const CHANGE_PASSWORD_MUTATION = gql`
-  mutation ($novaSenha: String!) {
-    changePassword
+  mutation ($id: ID!, $oldPassword: String!, $newPassword: String!) {
+    changePassword(id: $id, oldPassword: $oldPassword, newPassword: $newPassword)
   }
 `
 
@@ -93,26 +94,53 @@ export default {
       }
     },
     change: function () {
-      if (this.password) {
+      if (this.authState === true && !this.buttonDisabled) {
+        let { id } = this.$root.$children[0].usuario
+        let { password, newPassword } = this
         let mutation = CHANGE_PASSWORD_MUTATION
-        this.$apollo.mutate({
-          mutation
-        })
+        let variables = { id, oldPassword: password, newPassword }
+        let vm = this
+        this.$apollo.mutate({ mutation, variables })
+          .then(() => {
+            console.log('arguments: ', ...arguments)
+            vm.newPasswordRepeat = null
+            vm.newPassword = null
+            vm.password = null
+            alert('Sua senha foi alterada')
+            vm.$router.push({name: 'Home'})
+          })
+      } else {
+        alert('Preencha os campos corretamente')
       }
     }
   },
   computed: {
     isNewPasswordRepeated: function () {
-      return this.newPassword && this.newPassword === this.newPasswordRepeat
+      return this.newPasswordCheck && this.newPassword === this.newPasswordRepeat
     },
     newPasswordCheck: function () {
       if (this.authState) {
-        return this.newPassword ? (this.newPassword.length > 5) : null
+        let emptyCheck = 'newPassword' in this && this.newPassword !== null
+        let check = false
+        try {
+          let lengthCheck = this.newPassword.length > 5
+          let differentCheck = this.password !== this.newPassword
+          check = emptyCheck && lengthCheck && differentCheck
+        } catch (err) {
+          return false
+        }
+        return emptyCheck ? check : null
       }
       return null
     },
     buttonDisabled: function () {
-      return true
+      return this.authState !== true || !this.isNewPasswordRepeated || !this.newPasswordCheck
+    },
+    buttonText: function () {
+      return this.buttonDisabled ? 'Preencha os campos' : 'Trocar senha'
+    },
+    buttonVariant: function () {
+      return this.buttonDisabled ? 'outline-secondary' : 'outline-success'
     }
   },
   data () {
@@ -121,8 +149,6 @@ export default {
       verifyingPassword: false,
       authState: null,
       username: app.usuario.usuario,
-      buttonVariant: 'outline-secondary',
-      buttonText: 'Preencha os campos',
       password: null,
       newPassword: null,
       newPasswordRepeat: null,
