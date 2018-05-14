@@ -86,13 +86,15 @@ const sortMap = h => (h.key && typeof h === 'object' ? {text: h.label || upperFi
 
 // descrição dos campos da tabela
 const defaultFields = [
-  {
-    key: 'prioridade',
-    label: '!'
-  },
+  // {
+  //   key: 'prioridade',
+  //   label: '!',
+  //   sortable: true
+  // },
   {
     key: 'id',
-    label: '#'
+    label: '#',
+    sortable: true
   },
   {
     key: 'setor',
