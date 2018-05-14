@@ -62,6 +62,7 @@ export default gql`
         inicio_realizado
         fim_previsto
         fim_realizado
+        createdAt
       }
       atualizacoes {
         id

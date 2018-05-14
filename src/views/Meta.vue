@@ -117,7 +117,7 @@
               ).edit-btn
                 b-dd-item(href="#" @click="update('custo_previsto')") previsto
                 b-dd-item(href="#" @click="update('custo_realizado')") realizado
-      div.text-right(v-if='!loading && !isChild')
+      div.text-right(v-if='!loading && !isChild && canAddSubmeta')
         b-btn(variant='primary' @click='addSubmeta') Nova submeta
       div(v-if='!loading && isParent')
         b-row
@@ -137,7 +137,7 @@
                 //- Estes span com slot são necessários pra renderizar html nas colunas especificadas
                 span(slot="escopo" slot-scope="data" v-html="data.value")
                 span(slot="prazo" slot-scope="data" v-html="data.value")
-                span(slot="custo" slot-scope="data" v-html="data.value")
+                span(slot="custo_realizado" slot-scope="data" v-html="data.value")
             b-btn(
               block
               size="sm"
@@ -174,6 +174,8 @@
             size="sm"
             variant="outline-secondary"
             aria-controls="collapse-atualizacoes"
+            sort-by='em'
+            sort-desc='true'
             :title="collapse.atualizacoes ? 'Ocultar tabela' : 'Exibir tabela'"
             :class="collapse.atualizacoes ? 'collapsed' : null"
             :aria-expanded="collapse.atualizacoes ? 'true' : 'false'"
@@ -238,20 +240,26 @@ import Formatters from '@/components/Formatters'
 import moment from 'moment'
 const { numero, data, dinheiro } = Helpers
 const { escopo, cost, deadline } = Formatters
-const tableFields = [{key: 'em', formatter: v => moment(v).format('LLL')}, 'por', 'campo', 'de', 'para', 'motivo', 'apagar']
+const tableFields = [
+  {key: 'em', sortable: true, formatter: v => moment(v).format('LLL')},
+  {key: 'por', sortable: true},
+  {key: 'campo', sortable: true},
+  {key: 'valor', sortable: true},
+  {key: 'motivo', sortable: true},
+  'apagar'
+]
 let money = v => Helpers.dinheiro()(v) || 'R$0,00'
+let num = v => (numero()(v || 0) || '0,00')
+let scope = (v, k, i) => num(i.escopo_realizado) + '/' + num(i.escopo_previsto)
+let gasto = (v, k, i) => `${money(i.custo_realizado)}&nbsp;<small>/${money(i.custo_previsto)}</small>`
 const subFields = [
-  {key: 'titulo', label: 'Título', formatter: (v, k, i) => v},
-  {key: 'responsavel', label: 'Responsável', formatter: v => v === null ? '' : v.nome},
-  {key: 'escopo', formatter: (v, k, i) => numero()(i.escopo_realizado || 0) + '/' + numero()(i.escopo_previsto || 0)},
-  {key: 'prazo', formatter: Formatters.prazo()},
-  {
-    key: 'custo',
-    label: 'Gasto',
-    formatter: (v, k, i) => `
-      ${money(i.custo_realizado)}&nbsp;
-      <small>/${money(i.custo_previsto)}</small>`
-  }
+  {key: 'id', label: '#', sortable: true},
+  {key: 'createdAt', label: 'Criado', sortable: true, formatter: v => v ? moment(v).format('L') : ''},
+  {key: 'titulo', label: 'Título', sortable: true},
+  {key: 'responsavel', label: 'Responsável', sortable: true, formatter: v => v ? v.nome : ''},
+  {key: 'escopo', sortable: true, formatter: scope},
+  {key: 'prazo', sortable: true, formatter: Formatters.prazo()},
+  {key: 'custo_realizado', label: 'Gasto', sortable: true, formatter: gasto}
 ]
 export default {
   name: 'Meta',
@@ -280,6 +288,30 @@ export default {
     }
   },
   computed: {
+    canAddSubmeta: function () {
+      // referencia ao componente raiz container App
+      let app = this.$root.$children[0]
+      // verificacoes para evitar erros
+      if (this.loading || !this.meta.responsavel) {
+        return false
+      }
+      // tenta as seguintes operacoes tratando a falha caso ocorra
+      try {
+        let meta = Number(this.meta.responsavel.id)
+        let user = Number(app.usuario.id)
+        let permissoes = app.usuario.permissoes
+        let coordenadoria = this.meta.coordenadoria
+        let userCoordenadoria = app.usuario.coordenadoria ? app.usuario.coordenadoria.id : null
+        let coordenador = Number(coordenadoria.responsavel.id) === user
+        let diretor = Number(coordenadoria.setor.responsavel.id) === user
+        let integrante = Number(coordenadoria.id) === Number(userCoordenadoria)
+        let responsavel = meta === user
+        return permissoes['meta_create'] || responsavel || integrante || diretor || coordenador
+      } catch (err) {
+        // em producao nao deve gerar log no erro, apenas falha silenciosamente
+        return false
+      }
+    },
     atualizacoes: function () {
       // validação dos dados para garantir um fallback em caso de problemas (falta de dados)
       if (!(this.meta && this.meta.atualizacoes && this.meta.atualizacoes.length > 0)) {
