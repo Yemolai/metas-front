@@ -58,7 +58,7 @@ import ScopeMeter from '@/components/ScopeMeter'
 import GET_SETORES from '@/constants/get-setores'
 import GET_METAS_SETOR from '@/constants/get-metas-setor'
 import gql from 'graphql-tag'
-const logging = true
+const logging = false
 const log = (...args) => logging ? console.log(...args) : null
 
 export default {
