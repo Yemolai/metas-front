@@ -19,7 +19,7 @@
                 required)#input-nome
         b-row
           b-col
-            b-form-group(label="Usuario" label-for="input-usuario")
+            b-form-group(label="Usuario" label-for="input-usuario" description='Apenas letras minúsculas sem acentos e ponto (.)')
               b-form-input(
                 type="text"
                 v-model="usuario"
@@ -45,6 +45,7 @@ import router from '@/router'
 function removerAcentos (s) {
   return s.normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z.\s]/g, '')
     .replace(/\s/g, '.')
     .toLowerCase()
 }
@@ -52,7 +53,7 @@ export default {
   methods: {
     checkUsername: function () {
       let username = this.usuario
-      if (!username || username == '') {
+      if (!username || username === '') {
         this.validUsername = false
       }
       let same = this.usernames.filter(usr => usr.usuario === username)
@@ -63,8 +64,10 @@ export default {
       return removed
     },
     submitForm: function () {
+      this.checkUsername()
       if (this.validUsername) {
-        alert('Nome de usuário, escolha outro, por favor')
+        alert('Nome de usuário inválido, escolha outro, por favor')
+        this.usuario = this.usuarioFormatter(this.usuario)
         return false
       }
       let emptyNome = this.nome === null
