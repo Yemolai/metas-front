@@ -6,14 +6,28 @@
         b-row
           b-col
             b-form-group(label="Matrícula" label-for="input-matricula")
-              b-form-input(type="text" v-model="matricula" placeholder="316804951")#input-matricula
+              b-form-input(
+                type="text"
+                v-model="matricula"
+                placeholder="316804951")#input-matricula
           b-col
             b-form-group(label="Nome" label-for="input-nome")
-              b-form-input(type="text" v-model="nome" placeholder="José Andrade Silva" required)#input-nome
+              b-form-input(type="text"
+                v-model="nome"
+                placeholder="José Andrade Silva"
+                autocomplete='given-name'
+                required)#input-nome
         b-row
           b-col
             b-form-group(label="Usuario" label-for="input-usuario")
-              b-form-input(type="text" v-model="usuario" placeholder="jose.silva" required)#input-usuario
+              b-form-input(
+                type="text"
+                v-model="usuario"
+                placeholder="jose.silva"
+                @input='checkUsername'
+                :state='validUsername'
+                :formatter='usuarioFormatter'
+                required)#input-usuario
           b-col
             b-form-group(label="Permissões" label-for="input-permissoes")
               b-select(:options="listaPermissoes" value-field="id" text-field="nome" v-model="permissao")#input-permissoes
@@ -28,9 +42,31 @@
 <script>
 import gql from 'graphql-tag'
 import router from '@/router'
+function removerAcentos (s) {
+  return s.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s/g, '.')
+    .toLowerCase()
+}
 export default {
   methods: {
+    checkUsername: function () {
+      let username = this.usuario
+      if (!username || username == '') {
+        this.validUsername = false
+      }
+      let same = this.usernames.filter(usr => usr.usuario === username)
+      this.validUsername = same.length < 1
+    },
+    usuarioFormatter: function (value) {
+      let removed = removerAcentos(value)
+      return removed
+    },
     submitForm: function () {
+      if (this.validUsername) {
+        alert('Nome de usuário, escolha outro, por favor')
+        return false
+      }
       let emptyNome = this.nome === null
       let emptyUsuario = this.usuario === null
       let emptyPermissao = this.permissao === null
@@ -57,6 +93,7 @@ export default {
         })
     },
     resetForm: function () {
+      this.validUsername = false
       this.nome = null
       this.usuario = null
       this.matricula = null
@@ -79,6 +116,8 @@ export default {
   },
   data () {
     return {
+      usernames: [],
+      validUsername: false,
       loading: 0,
       nome: null,
       usuario: null,
@@ -88,6 +127,15 @@ export default {
     }
   },
   apollo: {
+    usernames: {
+      query: gql`query GET_USUARIOS_USERNAMES{
+        usuarios {
+          id
+          usuario
+        }
+      }`,
+      update: v => { return v.usuarios }
+    },
     permissoes: {
       query: gql`
         {
