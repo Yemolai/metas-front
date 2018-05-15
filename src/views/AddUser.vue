@@ -65,7 +65,7 @@ export default {
     },
     submitForm: function () {
       this.checkUsername()
-      if (this.validUsername) {
+      if (!this.validUsername) {
         alert('Nome de usuário inválido, escolha outro, por favor')
         this.usuario = this.usuarioFormatter(this.usuario)
         return false
