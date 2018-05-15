@@ -137,7 +137,7 @@ export default {
           if (ir) { // inicio_realizado
             if (fr) { // fim_realizado
               return `
-                finalizado há
+                Finalizado há
                 ${moment(fim_realizado).fromNow(true)}
                 <small>(${moment(fim_realizado).format('LL')})</small>`
             } else if (!fr) { // inicio_previsto, fim_previsto, inicio_realizado
