@@ -56,8 +56,8 @@ import cfg from '@/cfg.json'
 export default {
   data () {
     return {
-      username: 'root',
-      password: '#r001!',
+      username: null,
+      password: null,
       rememberMe: true
     }
   },
