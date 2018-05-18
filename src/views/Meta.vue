@@ -261,6 +261,7 @@ const subFields = [
   {key: 'prazo', sortable: true, formatter: Formatters.prazo()},
   {key: 'custo_realizado', label: 'Gasto', sortable: true, formatter: gasto}
 ]
+const capitalize = f => f ? f.split('_').map((v, k) => k === 0 ? v.charAt(0).toUpperCase() + v.substring(1) : v).join(' ') : ''
 export default {
   name: 'Meta',
   data () {
@@ -340,7 +341,7 @@ export default {
           id: atualizacao.id,
           em: atualizacao.createdAt,
           por: atualizacao.autor ? atualizacao.autor.nome : '',
-          campo: campo.split('_').map((v, k) => k === 0 ? v.charAt(0).toUpperCase() + v.substring(1) : v).join(' '),
+          campo: capitalize(campo),
           de: null,
           para,
           motivo: atualizacao.motivo
