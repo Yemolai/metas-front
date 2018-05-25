@@ -69,7 +69,8 @@ export default {
     }
   },
   methods: {
-    submitForm: function () {
+    submitForm: function (e) {
+      e.preventDefault()
       let app = this.$root.$children[0]
       let address = cfg.server + '/auth/login'
       let usuario = this.username
