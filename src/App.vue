@@ -53,7 +53,7 @@ export default {
     },
     usuario: function (novoUsuario, antigoUsuario) {
       let { currentRoute } = this.$router
-      if (novoUsuario === null && antigoUsuario !== null) {
+      if (novoUsuario === null && antigoUsuario !== null && currentRoute.name !== 'Login') {
         this.$router.push({ path: '/login', query: { redirect: currentRoute.fullPath } })
       } else if (novoUsuario !== null && antigoUsuario === null && currentRoute.name === 'Login') {
         // as the user wants to continue navigation after login, use the redirect to guide the next route
