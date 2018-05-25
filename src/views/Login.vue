@@ -86,9 +86,6 @@ export default {
               // usar sessionStorage quando "rememberMe" for false
               window.localStorage.setItem('token', response.data.token)
               app.token = response.data.token
-              if (!(vm.$router.query && vm.$router.query.redirect)) {
-                vm.$router.replace({ name: 'Home' })
-              }
             } else {
               alert(response.data.message || 'Não foi possível realizar login.')
             }
